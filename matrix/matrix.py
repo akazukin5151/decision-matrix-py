@@ -532,8 +532,8 @@ class Matrix:
         >>> m.add_criterion('cost', weight=7, continous=True)
         >>> m.criterion_values_to_scores(
         ...     ['size', 'cost'],
-        ...     [[0, 10, 15], [0, 10]],
-        ...     [[10, 5, 0], [10, 0]]
+        ...     all_values=[[0, 10, 15], [0, 10]],
+        ...     all_scores=[[10, 5, 0], [10, 0]]
         ... )
         >>> m._criterion_value_to_score
            size  size_score  cost  cost_score
