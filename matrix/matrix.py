@@ -36,6 +36,8 @@ class Matrix:
         ----------
         df : DataFrame
             The pandas DataFrame of the decision matrix.
+        continuous_criteria : list[str]
+            The names of the criteria that are added as continuous.
 
         Raises
         ------
@@ -72,7 +74,7 @@ class Matrix:
         then the 'extra' values of the longer tuple will be ignored silently, like ``zip``.
         """
         self.df = pd.DataFrame(index=('Weight',))
-        self._continuous_criteria: 'list[str]' = []
+        self.continuous_criteria: 'list[str]' = []
 
         # Columns: str   ==> <continuous_criterion>       , <continuous_criterion>_score
         # Rows   : float ==> if <criterion value> is this, then <score> is this
@@ -253,11 +255,11 @@ class Matrix:
         |:-------|--------:|-------:|
         | Weight |       5 |      2 |
 
-        >>> m._continuous_criteria
+        >>> m.continuous_criteria
         ['price', 'size']
         """
         self.add_criteria(*criteria, weights=weights)
-        self._continuous_criteria += list(criteria)
+        self.continuous_criteria += list(criteria)
 
     def add_criterion(self, criterion: str, *, weight: float, **choices_to_scores: float):
         """Add a criterion into the matrix to evaluate each choice against.
@@ -334,11 +336,11 @@ class Matrix:
         |:-------|--------:|
         | Weight |       7 |
 
-        >>> m._continuous_criteria
+        >>> m.continuous_criteria
         ['price']
         """
         self.add_criterion(criterion, weight=weight)
-        self._continuous_criteria.append(criterion)
+        self.continuous_criteria.append(criterion)
 
     def score_criterion(self, criterion: str, **choices_to_scores: float):
         """Given a criterion, assign scores (dictionary values) to given choices (dictionary keys).
@@ -375,7 +377,7 @@ class Matrix:
         | orange |       9 | 90.0         |
         """
         self._reject_if_if_method_active()
-        if criterion in self._continuous_criteria:
+        if criterion in self.continuous_criteria:
             raise ValueError('Cannot assign a score to a continuous criterion!')
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
@@ -421,7 +423,7 @@ class Matrix:
         """
         self._reject_if_if_method_active()
         for criterion in criteria_to_scores.keys():
-            if criterion in self._continuous_criteria:
+            if criterion in self.continuous_criteria:
                 raise ValueError('Cannot assign a score to a continuous criterion!')
             if criterion not in self.df.columns:
                 raise ValueError('Criterion has not been added yet, weight is unknown!')
@@ -526,7 +528,7 @@ class Matrix:
 
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
-        if criterion not in self._continuous_criteria:
+        if criterion not in self.continuous_criteria:
             raise ValueError('Criterion is not continuous!')
 
         self._if_method_active = True

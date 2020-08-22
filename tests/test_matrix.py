@@ -181,7 +181,7 @@ def test_add_continuous_criteria(crit):
     m = matrix.Matrix('apple', 'orange')
     m.add_continuous_criterion(crit, weight=9)
     assert crit in m.df.columns
-    assert crit in m._continuous_criteria
+    assert crit in m.continuous_criteria
 
 
 @given(non_nan_floats, non_nan_floats, non_nan_floats, non_nan_floats, non_nan_floats, non_nan_floats)
