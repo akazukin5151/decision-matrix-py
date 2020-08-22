@@ -30,11 +30,14 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
 ]
 
 autodoc_member_order = 'bysource'
 
 intersphinx_mapping = {'scipy': ('https://docs.scipy.org/doc/scipy/reference', None)}
+
+todo_include_todos = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

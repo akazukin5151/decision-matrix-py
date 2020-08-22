@@ -695,6 +695,10 @@ class Matrix:
         1   10.0          0.0   NaN         NaN
         2    NaN          NaN   0.0         0.0
         3    NaN          NaN  10.0        10.0
+
+        Todo
+        -------
+        Use a more descriptive name
         """
         # key is criterion name, value is criterion value
         self._reject_if_if_method_active()
