@@ -89,7 +89,7 @@ class Matrix:
 
         self._setup(*choices, **kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Provides a view to the final decision matrix
 
         Returns
@@ -124,7 +124,7 @@ class Matrix:
         return list(self.df.columns.drop('Percentage', errors='ignore'))
 
     @property
-    def value_score_df(self):
+    def value_score_df(self) -> pd.DataFrame:
         """Provides read-only access to the final decision matrix
 
         Returns
@@ -369,7 +369,7 @@ class Matrix:
 
         self._calculate_percentage()
 
-    def if_(self, **criterion_to_value: float):
+    def if_(self, **criterion_to_value: float) -> 'Matrix':
         """
         The first method in the if-then chain syntatic sugar for declaring
         what score should a choice receive given the values for the criterion.
