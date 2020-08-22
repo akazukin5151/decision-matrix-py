@@ -72,6 +72,7 @@ class Matrix:
         then the 'extra' values of the longer tuple will be ignored silently, like ``zip``.
         """
         self.df = pd.DataFrame(index=('Weight',))
+        self._continous_criteria: 'list[str]' = []
 
         # Columns: str   ==> <continous_criterion>       , <continous_criterion>_score
         # Rows   : float ==> if <criterion value> is this, then <score> is this
@@ -224,6 +225,7 @@ class Matrix:
 
             self.df.update(new)
             self._calculate_percentage()
+        # FIXME: what if continous is on? Which values are?
 
     def add_criterion(self, criterion: str, *, weight: float, continous=False, **choices_to_scores: float):
         """Add a criterion into the matrix to evaluate each choice against.
@@ -274,8 +276,7 @@ class Matrix:
 
         self.add_criteria(criterion, weights=weight, continous=continous, **choices_to_scores)
         if continous:
-            self._criterion_value_to_score[criterion] = np.nan
-            self._criterion_value_to_score[criterion + '_score'] = np.nan
+            self._continous_criteria.append(criterion)
 
     def score_criterion(self, criterion: str, **choices_to_scores: float):
         """Given a criterion, assign scores (dictionary values) to given choices (dictionary keys).
@@ -312,7 +313,7 @@ class Matrix:
         | orange |       9 | 90.0         |
         """
         self._reject_if_if_method_active()
-        if criterion in self._criterion_value_to_score.columns:
+        if criterion in self._continous_criteria:
             raise ValueError('Cannot assign a score to a continous criterion!')
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
@@ -358,7 +359,7 @@ class Matrix:
         """
         self._reject_if_if_method_active()
         for criterion in criteria_to_scores.keys():
-            if criterion in self._criterion_value_to_score.columns:
+            if criterion in self._continous_criteria:
                 raise ValueError('Cannot assign a score to a continous criterion!')
             if criterion not in self.df.columns:
                 raise ValueError('Criterion has not been added yet, weight is unknown!')
@@ -406,9 +407,9 @@ class Matrix:
         >>> m.if_(cost=30).then(score=0)
         >>> m.value_score_df
            cost  cost_score
-        0   0.0        10.0
-        1  10.0         5.0
-        2  30.0         0.0
+        0     0          10
+        1    10           5
+        2    30           0
 
         If a choice does indeed has a price of 10$, a score of 5
         will be assigned in its cost column
@@ -463,7 +464,7 @@ class Matrix:
 
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
-        if criterion not in self._criterion_value_to_score.columns:
+        if criterion not in self._continous_criteria:
             raise ValueError('Criterion is not continous!')
 
         self._if_method_active = True
@@ -503,6 +504,50 @@ class Matrix:
         self._given_criterion_name = None
         self._given_criterion_value = None
 
+    def criterion_values_to_scores(
+            self,
+            criteria_names: 'list[str]',
+            all_values, all_scores: 'list[list[float]]'
+        ):
+        """
+        For multiple continous criteria, declare what score should a choice receive
+        given values for that criterion.
+
+        Parameters
+        ----------
+        criteria_names : list[str]
+            The names of the criteria.
+        all_values : list[list[float]]
+            The collection of criterion values. The outer list should have a length
+            equal to criteria_names.
+        all_scores: list[list[float]]
+            The collection of criterion scores. The outer list should have a length
+            equal to criteria_names.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix()
+        >>> m.add_criterion('size', weight=4, continous=True)
+        >>> m.add_criterion('cost', weight=7, continous=True)
+        >>> m.criterion_values_to_scores(
+        ...     ['size', 'cost'],
+        ...     [[0, 10, 15], [0, 10]],
+        ...     [[10, 5, 0], [10, 0]]
+        ... )
+        >>> m._criterion_value_to_score
+           size  size_score  cost  cost_score
+        0     0          10   0.0        10.0
+        1    10           5  10.0         0.0
+        2    15           0   NaN         NaN
+        """
+        for criterion, value_lst, score_lst in zip(criteria_names, all_values, all_scores):
+            self._criterion_value_to_score = pd.concat([
+                self._criterion_value_to_score,
+                pd.Series(value_lst, name=criterion),
+                pd.Series(score_lst, name=criterion + '_score')
+            ], axis=1)
+
     def criterion_value_to_score(self, criterion_name: str, value_to_scores: dict[float, float]):
         """
         Declare what score should a choice receive for a continous criterion,
@@ -530,9 +575,9 @@ class Matrix:
         ... })
         >>> m.value_score_df
            size  size_score
-        0   0.0        10.0
-        1  10.0         5.0
-        2  15.0         0.0
+        0     0          10
+        1    10           5
+        2    15           0
         """
         self._reject_if_if_method_active()
         if criterion_name not in self.df.columns:
@@ -581,11 +626,11 @@ class Matrix:
         | apple  |      3 |       8 | 63.33333333333333  |
         | orange |      5 |       3 | 36.666666666666664 |
         >>> m.value_score_df
-           size  size_score  price  price_score
-        0   NaN         NaN    0.0         10.0
-        1   NaN         NaN   10.0          0.0
-        2   0.0         0.0    NaN          NaN
-        3  10.0        10.0    NaN          NaN
+           price  price_score  size  size_score
+        0    0.0         10.0   NaN         NaN
+        1   10.0          0.0   NaN         NaN
+        2    NaN          NaN   0.0         0.0
+        3    NaN          NaN  10.0        10.0
         """
         # key is criterion name, value is criterion value
         self._reject_if_if_method_active()
@@ -633,11 +678,11 @@ class Matrix:
         | apple  |      3 |       8 | 63.33333333333333  |
         | orange |      5 |       3 | 36.666666666666664 |
         >>> m.value_score_df
-           size  size_score  price  price_score
-        0   NaN         NaN    0.0         10.0
-        1   NaN         NaN   10.0          0.0
-        2   0.0         0.0    NaN          NaN
-        3  10.0        10.0    NaN          NaN
+           price  price_score  size  size_score
+        0    0.0         10.0   NaN         NaN
+        1   10.0          0.0   NaN         NaN
+        2    NaN          NaN   0.0         0.0
+        3    NaN          NaN  10.0        10.0
         """
         self.add_data(choice, **criteria_to_values)
 

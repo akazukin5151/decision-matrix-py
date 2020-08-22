@@ -182,8 +182,7 @@ def test_add_continous_criteria(crit):
     # The last two kwargs will be ignored
     m.add_criterion(crit, weight=9, continous=True, apple=1, orange=2)
     assert crit in m.df.columns
-    assert crit in m._criterion_value_to_score.columns
-    assert crit + '_score' in m._criterion_value_to_score.columns
+    assert crit in m._continous_criteria
 
     assert str(m.df.loc['apple', crit]) == 'nan'
     assert str(m.df.loc['orange', crit]) == 'nan'
@@ -264,7 +263,7 @@ def test_add_data(cost1, cost2, cost3, score1, score2, score3, actual1, actual2)
 
     calculated_score_1 = m._interpolators['cost'](actual1)
     calculated_score_2 = m._interpolators['cost'](actual2)
-    assert m.df.loc['apple', 'cost'] == pytest.approx(calculated_score_1)
+    assert m.df.loc['apple', 'cost'] == pytest.approx(calculated_score_1) or np.nan
     assert m.df.loc['orange', 'cost'] == pytest.approx(calculated_score_2)
     assert m.df.loc['apple', 'Percentage'] == pytest.approx(calculated_score_1 * 10) or np.nan
     assert m.df.loc['orange', 'Percentage'] == pytest.approx(calculated_score_2 * 10) or np.nan
