@@ -40,7 +40,7 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
 
     m.add_continuous_criteria(*continuous_criteria, weights=cc_weights)
 
-    m.criterion_values_to_scores(continuous_criteria, value_scores[0], value_scores[1])
+    m.criteria_values_to_scores(continuous_criteria, value_scores[0], value_scores[1])
 
     m.batch_add_data(data.keys(), data.values())
 

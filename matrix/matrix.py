@@ -568,7 +568,7 @@ class Matrix:
         self._given_criterion_name = None
         self._given_criterion_value = None
 
-    def criterion_values_to_scores(
+    def criteria_values_to_scores(
             self,
             criteria_names: 'list[str]',
             all_values, all_scores: 'list[list[float]]'
@@ -594,7 +594,7 @@ class Matrix:
         >>> m = matrix.Matrix()
         >>> m.add_continuous_criterion('size', weight=4)
         >>> m.add_continuous_criterion('cost', weight=7)
-        >>> m.criterion_values_to_scores(
+        >>> m.criteria_values_to_scores(
         ...     ['size', 'cost'],
         ...     all_values=[[0, 10, 15], [0, 10]],
         ...     all_scores=[[10, 5, 0], [10, 0]]
