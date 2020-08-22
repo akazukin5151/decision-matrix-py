@@ -39,7 +39,7 @@ def main(choices_tup, criteria_tup, continous_criteria_tup, weights_tup,
         m.score_choice(choice, **criterion_to_scores)
 
     for criterion, weight in zip(continous_criteria, cc_weights):
-        m.add_criterion(criterion, weight=weight, continous=True)
+        m.add_continous_criterion(criterion, weight=weight)
 
     m.criterion_values_to_scores(continous_criteria, value_scores[0], value_scores[1])
 
