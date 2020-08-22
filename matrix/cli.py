@@ -46,9 +46,7 @@ def main(choices_tup, criteria_tup, continous_criteria_tup, weights_tup,
             for value, score in zip(value_and_score[0], value_and_score[1])
         })
 
-    for choice, criteria_to_values in data.items():
-        for criterion, value in criteria_to_values.items():
-            eval(f'm.add_data(choice, {criterion}=value)')
+    m.batch_add_data(data.keys(), data.values())
 
     display_table(m.df)
 

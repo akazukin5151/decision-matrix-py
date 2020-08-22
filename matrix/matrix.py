@@ -598,6 +598,91 @@ class Matrix:
 
         self._calculate_percentage()
 
+    def add_data_from_dict(self, choice: str, criteria_to_values: 'dict[str, float]'):
+        """Adds criterion data for the given choice, from a dictionary.
+        The key and values are the same as ``add_data``, so this method is
+        just for convenience to programatically add criteria without using eval.
+
+        Parameters
+        ----------
+        choice : str
+            The name of the choice.
+        criteria_to_values : dict[str, float]
+            The criterion-value pairs.
+
+        See also
+        --------
+        add_data : The method that is wrapped
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix('apple', 'orange')
+        >>> m.add_criterion('size', weight=4, continous=True)
+        >>> m.add_criterion('price', weight=8, continous=True)
+        >>> m.if_(price=0).then(score=10)
+        >>> m.if_(price=10).then(score=0)
+        >>> m.if_(size=0).then(score=0)
+        >>> m.if_(size=10).then(score=10)
+        >>> m.add_data_from_dict('apple', {'price': 2, 'size': 3})
+        >>> m.add_data_from_dict('orange', {'price': 7, 'size': 5})
+        >>> m
+        |        |   size |   price | Percentage         |
+        |:-------|-------:|--------:|:-------------------|
+        | Weight |      4 |       8 |                    |
+        | apple  |      3 |       8 | 63.33333333333333  |
+        | orange |      5 |       3 | 36.666666666666664 |
+        >>> m.value_score_df
+           size  size_score  price  price_score
+        0   NaN         NaN    0.0         10.0
+        1   NaN         NaN   10.0          0.0
+        2   0.0         0.0    NaN          NaN
+        3  10.0        10.0    NaN          NaN
+        """
+        self.add_data(choice, **criteria_to_values)
+
+    def batch_add_data(self, choices: 'list[str]', values: 'list[dict[str, float]]'):
+        """For multiple choices, add criterion data.
+        If the length of either list is different, the extra items in the
+        longer list is ignored.
+
+        Parameters
+        ----------
+        choice : list[str]
+            The name of the choice.
+        values: list[dict[str, float]]
+            The criterion-value pairs.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix('apple', 'orange')
+        >>> m.add_criterion('size', weight=4, continous=True)
+        >>> m.add_criterion('price', weight=8, continous=True)
+        >>> m.if_(price=0).then(score=10)
+        >>> m.if_(price=10).then(score=0)
+        >>> m.if_(size=0).then(score=0)
+        >>> m.if_(size=10).then(score=10)
+        >>> m.batch_add_data(
+        ...     choices=['apple', 'orange'],
+        ...     values=[{'price': 8, 'size': 5}, {'price': 5, 'size': 3}]
+        ... )
+        >>> m
+        |        |   size |   price | Percentage         |
+        |:-------|-------:|--------:|:-------------------|
+        | Weight |      4 |       8 |                    |
+        | apple  |      5 |       2 | 30.0               |
+        | orange |      3 |       5 | 43.333333333333336 |
+
+        See also
+        --------
+        add_data : The method that is wrapped
+
+        add_data_from_dict : The method that is used internally
+        """
+        for choice, criteria_to_values in zip(choices, values):
+            self.add_data_from_dict(choice, criteria_to_values)
+
     def plot_interpolator(self, criterion_name: str, start=0, end=10):
         """Visualize the interpolator function used.
         Needs to explicitly show the plot with `plt.show()`
