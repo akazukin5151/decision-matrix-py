@@ -222,6 +222,43 @@ class Matrix:
             self.df.update(new)
             self._calculate_percentage()
 
+    def add_continuous_criteria(self, *criteria: str, weights):
+        """Add multiple continuous criteria into the matrix to evaluate each choice against.
+
+        Parameters
+        ----------
+        *criteria : str
+            Names of the criteria to add.
+
+        Keyword args
+        ------------
+        weights : tuple[float]
+            How important the criteria are (usually on a 0-10 scale), in order of declaration.
+        **choices_to_scores : tuple[float], optional
+            Immediately assign scores (dictionary values) to given choices (dictionary keys).
+            The tuples must be in the same order of the criteria.
+
+        Raises
+        ------
+        ValueError
+            When any given weight value is zero.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix()
+        >>> m.add_continuous_criteria('price', 'size', weights=(5, 2))
+        >>> m
+        |        |   price |   size |
+        |:-------|--------:|-------:|
+        | Weight |       5 |      2 |
+
+        >>> m._continuous_criteria
+        ['price', 'size']
+        """
+        self.add_criteria(*criteria, weights=weights)
+        self._continuous_criteria += list(criteria)
+
     def add_criterion(self, criterion: str, *, weight: float, **choices_to_scores: float):
         """Add a criterion into the matrix to evaluate each choice against.
 
@@ -267,48 +304,6 @@ class Matrix:
 
         self.add_criteria(criterion, weights=weight, **choices_to_scores)
 
-    def add_continuous_criteria(self, *criteria: str, weights):
-        """Add multiple continuous criteria into the matrix to evaluate each choice against.
-
-        Parameters
-        ----------
-        *criteria : str
-            Names of the criteria to add.
-
-        Keyword args
-        ------------
-        weights : tuple[float]
-            How important the criteria are (usually on a 0-10 scale), in order of declaration.
-        **choices_to_scores : tuple[float], optional
-            Immediately assign scores (dictionary values) to given choices (dictionary keys).
-            The tuples must be in the same order of the criteria.
-
-        Raises
-        ------
-        ValueError
-            When any given weight value is zero.
-
-        Examples
-        --------
-        >>> import matrix
-        >>> m = matrix.Matrix()
-        >>> m.add_continuous_criteria('price', 'size', weights=(5, 2))
-        >>> m
-        |        |   price |   size |
-        |:-------|--------:|-------:|
-        | Weight |       5 |      2 |
-
-        >>> m._continuous_criteria
-        ['price', 'size']
-        """
-        self._reject_if_if_method_active()
-        if np.any(weights == 0):
-            raise ValueError('Weights cannot be equal to zero!')
-
-        self.df = self.df.append(pd.DataFrame(columns=criteria))
-        self.df.loc['Weight', [*criteria]] = weights
-        self._continuous_criteria += list(criteria)
-
     def add_continuous_criterion(self, criterion: str, *, weight: float):
         """Add a continuous criterion into the matrix to evaluate each choice against.
 
@@ -342,9 +337,8 @@ class Matrix:
         >>> m._continuous_criteria
         ['price']
         """
-        if np.any(weight == 0):
-            raise ValueError('Weights cannot be equal to zero!')
-        self.add_continuous_criteria(criterion, weights=weight)
+        self.add_criterion(criterion, weight=weight)
+        self._continuous_criteria.append(criterion)
 
     def score_criterion(self, criterion: str, **choices_to_scores: float):
         """Given a criterion, assign scores (dictionary values) to given choices (dictionary keys).
