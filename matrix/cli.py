@@ -11,37 +11,37 @@ from matrix import Matrix
 @click.command()
 @click.option('-c', '--choices', 'choices_tup', multiple=True)
 @click.option('-C', '--criteria', 'criteria_tup', multiple=True)
-@click.option('--continous-criteria', 'continous_criteria_tup', multiple=True)
+@click.option('--continuous-criteria', 'continuous_criteria_tup', multiple=True)
 @click.option('--interact/--no-interact', ' /-I', default=True)
 @click.option('-w', '--weights', 'weights_tup', multiple=True)
-@click.option('-W', '--continous-weights', 'c_weights_tup', multiple=True)
+@click.option('-W', '--continuous-weights', 'c_weights_tup', multiple=True)
 @click.option('-s', '--scores', 'scores_tup', multiple=True)
 @click.option('-V', '--all-values', 'all_c_values', multiple=True)
 @click.option('-S', '--all-scores', 'all_c_scores', multiple=True)
 @click.option('-d', '--data', 'data_tup', multiple=True)
-def main(choices_tup, criteria_tup, continous_criteria_tup, weights_tup,
+def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
          c_weights_tup, scores_tup, all_c_values, all_c_scores, data_tup: 'tuple[str]',
          interact: bool):
 
     choices = maybe_ask_choices(choices_tup)
     criteria = maybe_ask_criteria(criteria_tup)
-    continous_criteria = maybe_ask_continous_criteria(continous_criteria_tup, interact)
-    all_criteria = list(criteria) + list(continous_criteria)
+    continuous_criteria = maybe_ask_continuous_criteria(continuous_criteria_tup, interact)
+    all_criteria = list(criteria) + list(continuous_criteria)
 
     weights = maybe_ask_weights(weights_tup, all_criteria)
-    cc_weights = maybe_ask_continous_criteria_weights(c_weights_tup, continous_criteria, interact)
+    cc_weights = maybe_ask_continuous_criteria_weights(c_weights_tup, continuous_criteria, interact)
     all_scores = maybe_ask_scores(scores_tup, choices, criteria)
-    value_scores = maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continous_criteria)
-    data = maybe_ask_data(data_tup, continous_criteria, choices)
+    value_scores = maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continuous_criteria)
+    data = maybe_ask_data(data_tup, continuous_criteria, choices)
 
     m = Matrix(*choices, criteria=criteria, weights=weights)
     for choice, criterion_to_scores in all_scores.items():
         m.score_choice(choice, **criterion_to_scores)
 
-    for criterion, weight in zip(continous_criteria, cc_weights):
-        m.add_continous_criterion(criterion, weight=weight)
+    for criterion, weight in zip(continuous_criteria, cc_weights):
+        m.add_continuous_criterion(criterion, weight=weight)
 
-    m.criterion_values_to_scores(continous_criteria, value_scores[0], value_scores[1])
+    m.criterion_values_to_scores(continuous_criteria, value_scores[0], value_scores[1])
 
     m.batch_add_data(data.keys(), data.values())
 
@@ -86,10 +86,10 @@ def maybe_ask_criteria(criteria_tup):
     return flat_split(criteria_tup)
 
 
-def maybe_ask_continous_criteria(continous_criteria_tup, interact: bool):
-    if not continous_criteria_tup and interact:
+def maybe_ask_continuous_criteria(continuous_criteria_tup, interact: bool):
+    if not continuous_criteria_tup and interact:
         ans = click.prompt(
-            'Are there any more criteria that are continous and need to be calculated?',
+            'Are there any more criteria that are continuous and need to be calculated?',
             default='false',
             show_default=True,
             show_choices=True,
@@ -97,10 +97,10 @@ def maybe_ask_continous_criteria(continous_criteria_tup, interact: bool):
         )
         if ans == 'true':
             return click.prompt(
-                'Enter the continous criteria, separated by commas with no spaces',
+                'Enter the continuous criteria, separated by commas with no spaces',
                 value_proc=lambda x: x.split(',')
             )
-    return flat_split(continous_criteria_tup)
+    return flat_split(continuous_criteria_tup)
 
 
 def maybe_ask_weights(weights_tup, all_criteria):
@@ -110,10 +110,10 @@ def maybe_ask_weights(weights_tup, all_criteria):
     return flat_split(weights_tup, float)
 
 
-def maybe_ask_continous_criteria_weights(c_weights_tup, continous_criteria, interact: bool):
+def maybe_ask_continuous_criteria_weights(c_weights_tup, continuous_criteria, interact: bool):
     if not c_weights_tup and interact:
         return [click.prompt(f'Enter a weight for {criterion}', type=float)
-                for criterion in continous_criteria]
+                for criterion in continuous_criteria]
     return flat_split(c_weights_tup, float)
 
 
@@ -150,13 +150,13 @@ def maybe_ask_scores(scores_tup, choices, criteria):
     return all_scores
 
 
-def maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continous_criteria):
-    if continous_criteria and not (all_c_values or all_c_scores):
-        return criterion_to_scores(continous_criteria)
+def maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continuous_criteria):
+    if continuous_criteria and not (all_c_values or all_c_scores):
+        return criterion_to_scores(continuous_criteria)
 
     all_values = []
     all_scores = []
-    for criteria, values_str, scores_str in zip(continous_criteria, all_c_values, all_c_scores):
+    for criteria, values_str, scores_str in zip(continuous_criteria, all_c_values, all_c_scores):
         values = values_str.split(',')
         scores = scores_str.split(',')
         all_values.append([float(value) for value in values])
@@ -165,12 +165,12 @@ def maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continous_cr
     return all_values, all_scores
 
 
-def criterion_to_scores(continous_criteria) -> 'tuple[list[float], list[float]]':
-    """Asks for value and score pairs for every continous criteria"""
+def criterion_to_scores(continuous_criteria) -> 'tuple[list[float], list[float]]':
+    """Asks for value and score pairs for every continuous criteria"""
     all_values = []
     all_scores = []
 
-    for criterion in continous_criteria:
+    for criterion in continuous_criteria:
         click.echo('Enter the requirements in the form <criterion>: <score>. Exit with :wq')
         click.echo(f'<Given this {criterion}...>: <What score should this value receive?>')
         click.echo(
@@ -210,14 +210,14 @@ def ask_pairs() -> 'tuple[list[float], list[float]]':
     return criterion_values, scores
 
 
-def maybe_ask_data(data_tup, continous_criteria, choices):
+def maybe_ask_data(data_tup, continuous_criteria, choices):
     # Dict key = choice, dict value = criterion values for every criterion
     data = {}
-    if continous_criteria and not data_tup:
+    if continuous_criteria and not data_tup:
         for choice in choices:
             # Dict key = criterion, dict value = criterion value
             values_for_this_choice: 'dict[str, float]' = {}
-            for criterion in continous_criteria:
+            for criterion in continuous_criteria:
                 ans = click.prompt(
                     f'Enter the {criterion} for {choice}',
                     type=float

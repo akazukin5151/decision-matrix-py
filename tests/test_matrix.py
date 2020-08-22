@@ -157,10 +157,10 @@ def test_score_criterion(score1, score2, weight):
     ) or np.nan
 
 
-def test_score_criterion_continous_criterion_raises():
+def test_score_criterion_continuous_criterion_raises():
     m = matrix.Matrix('apple')
-    m.add_continous_criterion('test', weight=3)
-    with pytest.raises(ValueError, match='Cannot assign a score to a continous criterion!'):
+    m.add_continuous_criterion('test', weight=3)
+    with pytest.raises(ValueError, match='Cannot assign a score to a continuous criterion!'):
         m.score_criterion('test', apple=7)
 
 
@@ -177,17 +177,17 @@ def test_score_choice_before_adding_criterion_raises():
 
 
 @given(text())
-def test_add_continous_criteria(crit):
+def test_add_continuous_criteria(crit):
     m = matrix.Matrix('apple', 'orange')
-    m.add_continous_criterion(crit, weight=9)
+    m.add_continuous_criterion(crit, weight=9)
     assert crit in m.df.columns
-    assert crit in m._continous_criteria
+    assert crit in m._continuous_criteria
 
 
 @given(non_nan_floats, non_nan_floats, non_nan_floats, non_nan_floats, non_nan_floats, non_nan_floats)
 def test_if_then_chain(cost1, cost2, cost3, score1, score2, score3):
     m = matrix.Matrix()
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.if_(cost=cost1).then(score=score1)
     m.if_(cost=cost2).then(score=score2)
     m.if_(cost=cost3).then(score=score3)
@@ -201,9 +201,9 @@ def test_if_then_not_a_criteria_raises():
         m.if_(hardness=2).then(score=7)
 
 
-def test_if_then_criteria_not_continous_raises():
+def test_if_then_criteria_not_continuous_raises():
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    with pytest.raises(ValueError, match='Criterion is not continous!'):
+    with pytest.raises(ValueError, match='Criterion is not continuous!'):
         m.if_(color=2).then(score=20)
 
 
@@ -217,7 +217,7 @@ def test_invalid_usage_of_then():
 
 def test_if_without_then_raises():
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.if_(cost=40)
     with pytest.raises(SyntaxError) as excinfo:
         m.add_choices('unadded')
@@ -227,7 +227,7 @@ def test_if_without_then_raises():
 
 def test_criterion_value_to_score():
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.criterion_value_to_score('cost', {0: 10, 10: 5, 30: 0})
     assert list(m._criterion_value_to_score.loc[:, 'cost']) == [0, 10, 30]
     assert list(m._criterion_value_to_score.loc[:, 'cost_score']) == [10, 5, 0]
@@ -244,7 +244,7 @@ def test_criterion_value_to_score_before_adding_criterion_raises():
         non_nan_non_inf_floats, non_nan_non_inf_floats)
 def test_add_data(cost1, cost2, cost3, score1, score2, score3, actual1, actual2):
     m = matrix.Matrix(choices=('apple', 'orange'))
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.criterion_value_to_score('cost', {cost1: score1, cost2: score2, cost3: score3})
 
     # This exception is allowed; occurs when all floats are equal
@@ -267,7 +267,7 @@ def test_add_data(cost1, cost2, cost3, score1, score2, score3, actual1, actual2)
 
 def test_repr(capsys):
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.criterion_value_to_score('cost', {0: 10, 10: 5, 30: 0})
     m.add_data('apple', cost=2)
     m.add_data('orange', cost=7)
@@ -280,7 +280,7 @@ def test_plot_interpolator(monkeypatch):
     mocked_plot = Mock()
     monkeypatch.setattr('matrix.matrix.plt.plot', mocked_plot)
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.criterion_value_to_score('cost', {0: 10, 10: 5, 30: 0})
     m.add_data('apple', cost=2)
     m.add_data('orange', cost=7)
@@ -294,7 +294,7 @@ def test_plot_interpolator(monkeypatch):
 
 def test_calculate():
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    m.add_continous_criterion('cost', weight=9)
+    m.add_continuous_criterion('cost', weight=9)
     m.criterion_value_to_score('cost', {0: 10, 10: 5, 30: 0})
     m.add_data('apple', cost=2)
     m.add_data('orange', cost=7)

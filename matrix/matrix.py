@@ -72,9 +72,9 @@ class Matrix:
         then the 'extra' values of the longer tuple will be ignored silently, like ``zip``.
         """
         self.df = pd.DataFrame(index=('Weight',))
-        self._continous_criteria: 'list[str]' = []
+        self._continuous_criteria: 'list[str]' = []
 
-        # Columns: str   ==> <continous_criterion>       , <continous_criterion>_score
+        # Columns: str   ==> <continuous_criterion>       , <continuous_criterion>_score
         # Rows   : float ==> if <criterion value> is this, then <score> is this
         self._criterion_value_to_score: 'pd.DataFrame[float]'
         self._criterion_value_to_score = pd.DataFrame()
@@ -170,8 +170,8 @@ class Matrix:
         ------------
         weights : tuple[float]
             How important the criteria are (usually on a 0-10 scale), in order of declaration.
-        continous : bool, optional
-            Whether this criterion represents a continous value whose scores needs to be
+        continuous : bool, optional
+            Whether this criterion represents a continuous value whose scores needs to be
             calculated by the program, rather than inputted manually.
             The default is False.
         **choices_to_scores : tuple[float], optional
@@ -238,8 +238,8 @@ class Matrix:
         ------------
         weight : float
             How important this criterion is (usually on a 0-10 scale).
-        continous : bool, optional
-            Whether this criterion represents a continous value whose scores needs to be
+        continuous : bool, optional
+            Whether this criterion represents a continuous value whose scores needs to be
             calculated by the program, rather than inputted manually.
             The default is False.
         **choices_to_scores : float, optional
@@ -275,7 +275,7 @@ class Matrix:
 
         self.add_criteria(criterion, weights=weight, **choices_to_scores)
 
-    def add_continous_criteria(self, *criteria: str, weights):
+    def add_continuous_criteria(self, *criteria: str, weights):
         """Add multiple criteria into the matrix to evaluate each choice against.
 
         Parameters
@@ -287,8 +287,8 @@ class Matrix:
         ------------
         weights : tuple[float]
             How important the criteria are (usually on a 0-10 scale), in order of declaration.
-        continous : bool, optional
-            Whether this criterion represents a continous value whose scores needs to be
+        continuous : bool, optional
+            Whether this criterion represents a continuous value whose scores needs to be
             calculated by the program, rather than inputted manually.
             The default is False.
         **choices_to_scores : tuple[float], optional
@@ -310,7 +310,7 @@ class Matrix:
         self.df = self.df.append(pd.DataFrame(columns=criteria))
         self.df.loc['Weight', [*criteria]] = weights
 
-    def add_continous_criterion(self, criterion: str, *, weight: float):
+    def add_continuous_criterion(self, criterion: str, *, weight: float):
         """Add a criterion into the matrix to evaluate each choice against.
 
         Parameters
@@ -322,8 +322,8 @@ class Matrix:
         ------------
         weight : float
             How important this criterion is (usually on a 0-10 scale).
-        continous : bool, optional
-            Whether this criterion represents a continous value whose scores needs to be
+        continuous : bool, optional
+            Whether this criterion represents a continuous value whose scores needs to be
             calculated by the program, rather than inputted manually.
             The default is False.
         **choices_to_scores : float, optional
@@ -340,8 +340,8 @@ class Matrix:
         if np.any(weight == 0):
             raise ValueError('Weights cannot be equal to zero!')
 
-        self.add_continous_criteria(criterion, weights=weight)
-        self._continous_criteria.append(criterion)
+        self.add_continuous_criteria(criterion, weights=weight)
+        self._continuous_criteria.append(criterion)
 
     def score_criterion(self, criterion: str, **choices_to_scores: float):
         """Given a criterion, assign scores (dictionary values) to given choices (dictionary keys).
@@ -359,7 +359,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            If the given criterion is not declared to be continous.
+            If the given criterion is not declared to be continuous.
 
         Examples
         --------
@@ -378,8 +378,8 @@ class Matrix:
         | orange |       9 | 90.0         |
         """
         self._reject_if_if_method_active()
-        if criterion in self._continous_criteria:
-            raise ValueError('Cannot assign a score to a continous criterion!')
+        if criterion in self._continuous_criteria:
+            raise ValueError('Cannot assign a score to a continuous criterion!')
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
 
@@ -405,7 +405,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            If any of the given criteria is not declared to be continous.
+            If any of the given criteria is not declared to be continuous.
 
         Examples
         --------
@@ -424,8 +424,8 @@ class Matrix:
         """
         self._reject_if_if_method_active()
         for criterion in criteria_to_scores.keys():
-            if criterion in self._continous_criteria:
-                raise ValueError('Cannot assign a score to a continous criterion!')
+            if criterion in self._continuous_criteria:
+                raise ValueError('Cannot assign a score to a continuous criterion!')
             if criterion not in self.df.columns:
                 raise ValueError('Criterion has not been added yet, weight is unknown!')
 
@@ -450,7 +450,7 @@ class Matrix:
         ValueError
             * If the criterion has not been added yet, the weight is unknown.
 
-            * If the criterion is not declared to be continous.
+            * If the criterion is not declared to be continuous.
 
         Returns
         -------
@@ -459,14 +459,14 @@ class Matrix:
 
         Examples
         --------
-        This example shows the declaration of a continous criterion called cost.
+        This example shows the declaration of a continuous criterion called cost.
         The usage is declarative in nature, mimicking natural language:
         "if the cost is 0 (dollars), then award a score of 10"
 
 
         >>> import matrix
         >>> m = matrix.Matrix()
-        >>> m.add_continous_criterion('cost', weight=9)
+        >>> m.add_continuous_criterion('cost', weight=9)
         >>> m.if_(cost=0).then(score=10)
         >>> m.if_(cost=10).then(score=5)
         >>> m.if_(cost=30).then(score=0)
@@ -529,8 +529,8 @@ class Matrix:
 
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
-        if criterion not in self._continous_criteria:
-            raise ValueError('Criterion is not continous!')
+        if criterion not in self._continuous_criteria:
+            raise ValueError('Criterion is not continuous!')
 
         self._if_method_active = True
         self._given_criterion_name = criterion
@@ -575,7 +575,7 @@ class Matrix:
             all_values, all_scores: 'list[list[float]]'
         ):
         """
-        For multiple continous criteria, declare what score should a choice receive
+        For multiple continuous criteria, declare what score should a choice receive
         given values for that criterion.
 
         Parameters
@@ -593,8 +593,8 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix()
-        >>> m.add_continous_criterion('size', weight=4)
-        >>> m.add_continous_criterion('cost', weight=7)
+        >>> m.add_continuous_criterion('size', weight=4)
+        >>> m.add_continuous_criterion('cost', weight=7)
         >>> m.criterion_values_to_scores(
         ...     ['size', 'cost'],
         ...     all_values=[[0, 10, 15], [0, 10]],
@@ -615,7 +615,7 @@ class Matrix:
 
     def criterion_value_to_score(self, criterion_name: str, value_to_scores: dict[float, float]):
         """
-        Declare what score should a choice receive for a continous criterion,
+        Declare what score should a choice receive for a continuous criterion,
         given the values for that criterion.
 
         Parameters
@@ -631,7 +631,7 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix()
-        >>> m.add_continous_criterion('size', weight=4)
+        >>> m.add_continuous_criterion('size', weight=4)
         >>> m.criterion_value_to_score('size', {
         ...     # criterion value: score
         ...     0: 10,
@@ -676,8 +676,8 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix('apple', 'orange')
-        >>> m.add_continous_criterion('size', weight=4)
-        >>> m.add_continous_criterion('price', weight=8)
+        >>> m.add_continuous_criterion('size', weight=4)
+        >>> m.add_continuous_criterion('price', weight=8)
         >>> m.if_(price=0).then(score=10)
         >>> m.if_(price=10).then(score=0)
         >>> m.if_(size=0).then(score=0)
@@ -728,8 +728,8 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix('apple', 'orange')
-        >>> m.add_continous_criterion('size', weight=4)
-        >>> m.add_continous_criterion('price', weight=8)
+        >>> m.add_continuous_criterion('size', weight=4)
+        >>> m.add_continuous_criterion('price', weight=8)
         >>> m.if_(price=0).then(score=10)
         >>> m.if_(price=10).then(score=0)
         >>> m.if_(size=0).then(score=0)
@@ -767,8 +767,8 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix('apple', 'orange')
-        >>> m.add_continous_criterion('size', weight=4)
-        >>> m.add_continous_criterion('price', weight=8)
+        >>> m.add_continuous_criterion('size', weight=4)
+        >>> m.add_continuous_criterion('price', weight=8)
         >>> m.if_(price=0).then(score=10)
         >>> m.if_(price=10).then(score=0)
         >>> m.if_(size=0).then(score=0)
