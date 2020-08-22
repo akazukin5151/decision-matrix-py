@@ -38,8 +38,7 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
     for choice, criterion_to_scores in all_scores.items():
         m.score_choice(choice, **criterion_to_scores)
 
-    for criterion, weight in zip(continuous_criteria, cc_weights):
-        m.add_continuous_criterion(criterion, weight=weight)
+    m.add_continuous_criteria(*continuous_criteria, weights=cc_weights)
 
     m.criterion_values_to_scores(continuous_criteria, value_scores[0], value_scores[1])
 
