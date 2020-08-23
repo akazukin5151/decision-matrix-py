@@ -12,7 +12,9 @@ def maybe_exit_insufficient(interact, *args):
     if not all(args) and not interact:
         click.get_current_context().fail(
             'Insufficient information in non-interactive mode!\n'
-            'At the minimium, choices, criteria, weights, and scores must be supplied.'
+            'At the minimium, choices, criteria, weights, and scores must be supplied.\n'
+            'If continuous criteria is given, their weights, all value-score '
+            'pairs, and all data need to be given.'
         )
 
 
@@ -34,7 +36,12 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
     # not supplied via cli
     # If off, then no questions at all, throwing an error if not enough info
     maybe_exit_insufficient(interact, choices_tup, criteria_tup, weights_tup, scores_tup)
+    if continuous_criteria_tup:
+        maybe_exit_insufficient(interact, c_weights_tup, all_c_values, all_c_scores, data_tup)
 
+    # maybe_ask functions for choices, criteria, & scores doesn't need interact,
+    # because if it's not passed in non-interactive mode, maybe_exit_insufficient
+    # will throw an error
     choices = maybe_ask_choices(choices_tup)
     criteria = maybe_ask_criteria(criteria_tup)
     continuous_criteria = maybe_ask_continuous_criteria(continuous_criteria_tup, interact)
