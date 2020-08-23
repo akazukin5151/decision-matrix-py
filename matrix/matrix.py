@@ -717,7 +717,7 @@ class Matrix:
     def add_data(
         self,
         choice: str,
-        dict_: dict[str, float] = None,
+        values_dict: dict[str, float] = None,
         **criteria_to_values: float
     ):
         """Adds criterion data for the given choice, which is used to calculate their score.
@@ -726,7 +726,7 @@ class Matrix:
         ----------
         choice : str
             The name of the choice.
-        dict_ : Optional[dict[str, float]]
+        values_dict : Optional[dict[str, float]]
             The criterion-value pairs in the form of a dictionary.
 
         Keyword args
@@ -737,7 +737,7 @@ class Matrix:
         Raises
         ------
         TypeError
-            If neither ``dict_`` nor ``criteria_to_values`` is given.
+            If neither ``values_dict`` nor ``criteria_to_values`` is given.
 
         Examples
         --------
@@ -772,8 +772,8 @@ class Matrix:
         -------
         Use a more descriptive name
         """
-        if dict_ and not criteria_to_values:
-            return self.batch_add_data({choice: dict_})
+        if values_dict and not criteria_to_values:
+            return self.batch_add_data({choice: values_dict})
         elif criteria_to_values:
             return self.batch_add_data({choice: criteria_to_values})
 
