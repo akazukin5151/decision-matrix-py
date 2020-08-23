@@ -697,6 +697,37 @@ class Matrix:
                 pd.Series(score_lst, name=criterion + '_score'),
             ], axis=1)
 
+    def values_to_score_from_record(self, dictionary):
+        """
+        Todo
+        ------
+        Better name for adding criteria values and their scores for continuous criteria.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix()
+        >>> m.add_continuous_criterion('size', weight=4)
+        >>> m.add_continuous_criterion('cost', weight=7)
+        >>> m.values_to_score_from_record({
+        ...     'size': [(0, 10), (10, 5), (15, 0)],
+        ...     'cost': [(0, 10), (10, 0)],
+        ... })
+        >>> m.value_score_df
+           size  size_score  cost  cost_score
+        0     0          10   0.0        10.0
+        1    10           5  10.0         0.0
+        2    15           0   NaN         NaN
+        """
+        for criterion, record in dictionary.items():
+            self._criterion_value_to_score = pd.concat([
+                self._criterion_value_to_score,
+                pd.DataFrame.from_records(
+                    record,
+                    columns=[criterion, criterion + '_score']
+                )
+            ], axis=1)
+
     def criterion_value_to_score(
         self, criterion_name: str, value_to_scores: dict[float, float]
     ):
