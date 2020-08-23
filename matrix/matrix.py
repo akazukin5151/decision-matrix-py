@@ -160,7 +160,12 @@ class Matrix:
         self._reject_if_if_method_active()
         self.df = self.df.append(pd.DataFrame(index=choices))
 
-    def add_criteria(self, *criteria: str, weights, **choices_to_scores: 'tuple[float]'):
+    def add_criteria(
+        self,
+        *criteria: str,
+        weights: tuple[float],
+        **choices_to_scores: tuple[float]
+    ):
         """Add multiple criteria into the matrix to evaluate each choice against.
 
         Parameters
@@ -209,7 +214,9 @@ class Matrix:
         self.df.loc['Weight', [*criteria]] = weights
 
         if choices_to_scores:
-            new = pd.DataFrame.from_dict(choices_to_scores, columns=criteria, orient='index')
+            new = pd.DataFrame.from_dict(
+                choices_to_scores, columns=criteria, orient='index'
+            )
 
             # If some choices has not been added first, add them now anyway
             if len(self.df.index) < len(new.index):
@@ -224,7 +231,7 @@ class Matrix:
             self.df.update(new)
             self._calculate_percentage()
 
-    def add_continuous_criteria(self, *criteria: str, weights):
+    def add_continuous_criteria(self, *criteria: str, weights: tuple[float]):
         """Add multiple continuous criteria into the matrix to evaluate each choice against.
 
         Parameters
@@ -261,7 +268,9 @@ class Matrix:
         self.add_criteria(*criteria, weights=weights)
         self.continuous_criteria += list(criteria)
 
-    def add_criterion(self, criterion: str, *, weight: float, **choices_to_scores: float):
+    def add_criterion(
+        self, criterion: str, *, weight: float, **choices_to_scores: float
+    ):
         """Add a criterion into the matrix to evaluate each choice against.
 
         Parameters
@@ -383,7 +392,9 @@ class Matrix:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
 
         self.df.update(
-            pd.DataFrame.from_dict(choices_to_scores, columns=[criterion], orient='index')
+            pd.DataFrame.from_dict(
+                choices_to_scores, columns=[criterion], orient='index'
+            )
         )
 
         self._calculate_percentage()
@@ -423,7 +434,9 @@ class Matrix:
         """
         self.score_choices({choice: criteria_to_scores})
 
-    def score_choices(self, choices_and_criteria_to_scores: 'dict[str, dict[str, float]]'):
+    def score_choices(
+        self, choices_and_criteria_to_scores: dict[str, dict[str, float]]
+    ):
         """Given some choices, assign scores (dictionary values) to given criteria (dictionary keys).
 
         Parameters
@@ -472,7 +485,7 @@ class Matrix:
         self.df.update(new)
         self._calculate_percentage()
 
-    def if_(self, **criterion_to_value: float) -> 'Matrix':
+    def if_(self, **criterion_to_value: float) -> Matrix:
         """
         The first method in the if-then chain syntatic sugar for declaring
         what score should a choice receive given the values for the criterion.
@@ -601,18 +614,18 @@ class Matrix:
 
         self._if_method_active = False
         self.criterion_value_to_score(
-            self._given_criterion_name,
-            {self._given_criterion_value: score}
+            self._given_criterion_name, {self._given_criterion_value: score}
         )
 
         self._given_criterion_name = None
         self._given_criterion_value = None
 
     def criteria_values_to_scores(
-            self,
-            criteria_names: 'list[str]',
-            all_values, all_scores: 'list[list[float]]'
-        ):
+        self,
+        criteria_names: list[str],
+        all_values: list[list[float]],
+        all_scores: list[list[float]],
+    ):
         """
         For multiple continuous criteria, declare what score should a choice receive
         given values for that criterion.
@@ -645,14 +658,18 @@ class Matrix:
         1    10           5  10.0         0.0
         2    15           0   NaN         NaN
         """
-        for criterion, value_lst, score_lst in zip(criteria_names, all_values, all_scores):
+        for criterion, value_lst, score_lst in zip(
+            criteria_names, all_values, all_scores
+        ):
             self._criterion_value_to_score = pd.concat([
                 self._criterion_value_to_score,
                 pd.Series(value_lst, name=criterion),
-                pd.Series(score_lst, name=criterion + '_score')
+                pd.Series(score_lst, name=criterion + '_score'),
             ], axis=1)
 
-    def criterion_value_to_score(self, criterion_name: str, value_to_scores: dict[float, float]):
+    def criterion_value_to_score(
+        self, criterion_name: str, value_to_scores: dict[float, float]
+    ):
         """
         Declare what score should a choice receive for a continuous criterion,
         given the values for that criterion.
@@ -690,18 +707,19 @@ class Matrix:
         other = pd.DataFrame(
             list(value_to_scores.items()),
             index=range(len(value_to_scores.keys())),
-            columns=[criterion_name, criterion_name + '_score']
+            columns=[criterion_name, criterion_name + '_score'],
         )
 
         self._criterion_value_to_score = pd.concat(
-            [self._criterion_value_to_score, other],
-            ignore_index=True
+            [self._criterion_value_to_score, other], ignore_index=True
         )
 
-    def add_data(self,
+    def add_data(
+        self,
         choice: str,
-        dict_: 'dict[str, float]' = None,
-        **criteria_to_values: float):
+        dict_: dict[str, float] = None,
+        **criteria_to_values: float
+    ):
         """Adds criterion data for the given choice, which is used to calculate their score.
 
         Parameters
@@ -763,7 +781,7 @@ class Matrix:
             'Criteria values must be given either as a dictionary or as keyword args'
         )
 
-    def batch_add_data(self, choices_and_values: 'dict[str, dict[str, float]]'):
+    def batch_add_data(self, choices_and_values: dict[str, dict[str, float]]):
         """For multiple choices, add criterion data.
         If the length of either list is different, the extra items in the
         longer list is ignored.
@@ -829,7 +847,6 @@ class Matrix:
         x = np.arange(start, end)
         y = self._interpolators[criterion_name](x)
         plt.plot(x, y)
-
 
     def _setup(self, *choices: str, **kwargs):
         """See docstring for __init__"""
