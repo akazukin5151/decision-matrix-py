@@ -652,7 +652,7 @@ class Matrix:
         ...     all_values=[[0, 10, 15], [0, 10]],
         ...     all_scores=[[10, 5, 0], [10, 0]]
         ... )
-        >>> m._criterion_value_to_score
+        >>> m.value_score_df
            size  size_score  cost  cost_score
         0     0          10   0.0        10.0
         1    10           5  10.0         0.0
