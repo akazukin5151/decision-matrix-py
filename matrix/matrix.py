@@ -740,16 +740,7 @@ class Matrix:
         -------
         Use a more descriptive name
         """
-        # key is criterion name, value is criterion value
-        self._reject_if_if_method_active()
-        for criterion_name, criterion_value in criteria_to_values.items():
-            given_criterion_values = self._criterion_value_to_score[criterion_name].dropna()
-            scores = self._criterion_value_to_score[criterion_name + '_score'].dropna()
-            f = interpolate.interp1d(given_criterion_values, scores, fill_value='extrapolate')
-            self.df.loc[choice, criterion_name] = f(criterion_value)
-            self._interpolators[criterion_name] = f
-
-        self._calculate_percentage()
+        self.batch_add_data({choice: criteria_to_values})
 
     def add_data_from_dict(self, choice: str, criteria_to_values: 'dict[str, float]'):
         """Adds criterion data for the given choice, from a dictionary.
@@ -792,19 +783,17 @@ class Matrix:
         2    NaN          NaN   0.0         0.0
         3    NaN          NaN  10.0        10.0
         """
-        self.add_data(choice, **criteria_to_values)
+        self.batch_add_data({choice: criteria_to_values})
 
-    def batch_add_data(self, choices: 'list[str]', values: 'list[dict[str, float]]'):
+    def batch_add_data(self, choices_and_values: 'dict[str, dict[str, float]]'):
         """For multiple choices, add criterion data.
         If the length of either list is different, the extra items in the
         longer list is ignored.
 
         Parameters
         ----------
-        choice : list[str]
-            The name of the choice.
-        values: list[dict[str, float]]
-            The criterion-value pairs.
+        choices_and_values : dict[str, dict[str, float]]
+            The name of the choice The criterion-value pairs.
 
         Examples
         --------
@@ -816,10 +805,10 @@ class Matrix:
         >>> m.if_(price=10).then(score=0)
         >>> m.if_(size=0).then(score=0)
         >>> m.if_(size=10).then(score=10)
-        >>> m.batch_add_data(
-        ...     choices=['apple', 'orange'],
-        ...     values=[{'price': 8, 'size': 5}, {'price': 5, 'size': 3}]
-        ... )
+        >>> m.batch_add_data({
+        ...     'apple': {'price': 8, 'size': 5},
+        ...     'orange': {'price': 5, 'size': 3}
+        ... })
         >>> m
         |        |   size |   price | Percentage         |
         |:-------|-------:|--------:|:-------------------|
@@ -833,8 +822,19 @@ class Matrix:
 
         add_data_from_dict : The method that is used internally
         """
-        for choice, criteria_to_values in zip(choices, values):
-            self.add_data_from_dict(choice, criteria_to_values)
+        new = pd.DataFrame(choices_and_values).T
+        for criterion in self.continuous_criteria:
+            # Build interpolators
+            value = self.value_score_df[criterion].dropna()
+            score = self.value_score_df[criterion + '_score'].dropna()
+            f = interpolate.interp1d(value, score, fill_value='extrapolate')
+            self._interpolators[criterion] = f
+
+            # Apply column-wise (by criteria)
+            new.loc[:, criterion] = f(new.loc[:, criterion])
+
+        self.df.update(new)
+        self._calculate_percentage()
 
     def plot_interpolator(self, criterion_name: str, start=0, end=10):
         """Visualize the interpolator function used.
