@@ -103,7 +103,7 @@ class Matrix:
         return self.df.fillna('').to_markdown()
 
     @property
-    def all_choices(self) -> 'list[str]':
+    def all_choices(self) -> list[str]:
         """Returns a view of the current choices in the matrix
 
         Returns
@@ -115,7 +115,7 @@ class Matrix:
         return list(self.df.index)[1:]
 
     @property
-    def all_criteria(self) -> 'list[str]':
+    def all_criteria(self) -> list[str]:
         """Returns a view of the current criteria in the matrix
 
         Returns
