@@ -26,9 +26,7 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
     choices = maybe_ask_choices(choices_tup)
     criteria = maybe_ask_criteria(criteria_tup)
     continuous_criteria = maybe_ask_continuous_criteria(continuous_criteria_tup, interact)
-    all_criteria = list(criteria) + list(continuous_criteria)
-
-    weights = maybe_ask_weights(weights_tup, all_criteria)
+    weights = maybe_ask_weights(weights_tup, criteria)
     cc_weights = maybe_ask_continuous_criteria_weights(c_weights_tup, continuous_criteria, interact)
     all_scores = maybe_ask_scores(scores_tup, choices, criteria)
     value_scores = maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continuous_criteria)
@@ -98,10 +96,10 @@ def maybe_ask_continuous_criteria(continuous_criteria_tup, interact: bool):
     return flat_split(continuous_criteria_tup)
 
 
-def maybe_ask_weights(weights_tup, all_criteria):
+def maybe_ask_weights(weights_tup, criteria):
     if not weights_tup:
         return [click.prompt(f'Enter a weight for {criterion}', type=float)
-                for criterion in all_criteria]
+                for criterion in criteria]
     return flat_split(weights_tup, float)
 
 
