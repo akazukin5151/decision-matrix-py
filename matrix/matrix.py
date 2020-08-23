@@ -42,7 +42,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            When any given weight value is zero.
+            If any given weight value is zero.
 
 
         Examples
@@ -179,7 +179,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            When any given weight value is zero.
+            If any given weight value is zero.
 
         Examples
         --------
@@ -243,7 +243,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            When any given weight value is zero.
+            If any given weight value is zero.
 
         Examples
         --------
@@ -279,7 +279,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            When a weight value is zero.
+            If a weight value is zero.
 
         Examples
         --------
@@ -324,7 +324,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            When a weight value is zero.
+            If a weight value is zero.
 
         Examples
         --------
@@ -358,7 +358,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            If the given criterion is not declared to be continuous.
+            If the given criterion is not continuous.
 
         Examples
         --------
@@ -404,7 +404,7 @@ class Matrix:
         Raises
         ------
         ValueError
-            If any of the given criteria is not declared to be continuous.
+            If any of the given criteria is not continuous.
 
         Examples
         --------
@@ -494,9 +494,11 @@ class Matrix:
         Raises
         ------
         ValueError
-            * If the criterion has not been added yet, the weight is unknown.
+            * If the criterion is not continuous.
 
-            * If the criterion is not declared to be continuous.
+
+            * If the criterion has not been added yet; its weight is unknown.
+
 
         Returns
         -------
