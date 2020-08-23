@@ -3,7 +3,28 @@ from click.testing import CliRunner
 from matrix.cli import main
 
 
-def test_ugly():
+def test_short_no_prompt_in_non_interactive_mode():
+    runner = CliRunner()
+    args = (
+        '-c a,b '
+        '-C c,d '
+        '-w 1,2 '
+        '-s 1,2,3,4 '
+        '-I'
+    )
+    result = runner.invoke(main, args)
+    assert result.output == (
+        '┏━━━━━━━━━┳━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━━━━┓\n'
+        '┃ Choices ┃ c   ┃ d   ┃ Percentage         ┃\n'
+        '┡━━━━━━━━━╇━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━━━━┩\n'
+        '│ Weight  │ 1.0 │ 2.0 │                    │\n'
+        '│ a       │ 1.0 │ 2.0 │ 16.666666666666664 │\n'
+        '│ b       │ 3.0 │ 4.0 │ 36.666666666666664 │\n'
+        '└─────────┴─────┴─────┴────────────────────┘\n'
+    )
+
+@pytest.mark.parametrize('interactive', (True, False))
+def test_ugly(interactive):
     runner = CliRunner()
     args = (
         '-c a,b '
@@ -21,6 +42,11 @@ def test_ugly():
         '-d b,e,3 '
         '-d b,f,4 '
     )
+
+    # Make sure that there's no prompts in non-interactive mode
+    if not interactive:
+        args += '-I '
+
     result = runner.invoke(main, args)
     assert result.output == (
         '┏━━━━━━━━━┳━━━━━┳━━━━━┳━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━━━━┓\n'
@@ -366,14 +392,3 @@ def test_insufficient_args_continuous_quits(weights, values, scores, data):
         'If continuous criteria is given, their weights, all value-score '
         'pairs, and all data need to be given.\n'
     )
-
-def test_no_prompt_in_non_interactive_mode():
-    runner = CliRunner()
-    args = (
-        '-c a,b ',
-        '-C c,d ',
-        '-w 1,2 ',
-        '-s 1,2,3,4 ',
-    )
-    result = runner.invoke(main, '-I ' + ''.join(args))
-    assert result.exit_code == 0
