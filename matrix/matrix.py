@@ -421,15 +421,41 @@ class Matrix:
         | Weight |       7 |       3 |              |
         | apple  |       7 |       5 | 64.0         |
         """
+        self.score_choices([choice], [criteria_to_scores])
+
+    def score_choices(self, choices: 'list[str]', criteria_to_scores: 'list[dict[str, float]]'):
+        """
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix(
+        ...     choices=('apple', 'orange'),
+        ...     criteria=('taste', 'color'),
+        ...     weights=(7, 3)
+        ... )
+        >>> m.score_choices(
+        ...     ['apple', 'orange'], [
+        ...         {'taste': 7, 'color': 5},
+        ...         {'taste': 9, 'color': 3}
+        ...     ]
+        ... )
+        >>> m
+        |        |   taste |   color | Percentage   |
+        |:-------|--------:|--------:|:-------------|
+        | Weight |       7 |       3 |              |
+        | apple  |       7 |       5 | 64.0         |
+        | orange |       9 |       3 | 72.0         |
+        """
         self._reject_if_if_method_active()
-        for criterion in criteria_to_scores.keys():
-            if criterion in self.continuous_criteria:
-                raise ValueError('Cannot assign a score to a continuous criterion!')
-            if criterion not in self.df.columns:
-                raise ValueError('Criterion has not been added yet, weight is unknown!')
+        for pairs in criteria_to_scores:
+            for criterion in pairs.keys():
+                if criterion in self.continuous_criteria:
+                    raise ValueError('Cannot assign a score to a continuous criterion!')
+                if criterion not in self.df.columns:
+                    raise ValueError('Criterion has not been added yet, weight is unknown!')
 
         self.df.update(
-            pd.DataFrame(criteria_to_scores, index=[choice])
+            pd.DataFrame(criteria_to_scores, index=choices)
         )
 
         self._calculate_percentage()
