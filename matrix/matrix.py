@@ -394,7 +394,7 @@ class Matrix:
         Parameters
         ----------
         choice : str
-            The choice to be evaluated.
+            The name of the choice to be evaluated.
 
         Keyword args
         ------------
@@ -424,7 +424,28 @@ class Matrix:
         self.score_choices([choice], [criteria_to_scores])
 
     def score_choices(self, choices: 'list[str]', criteria_to_scores: 'list[dict[str, float]]'):
-        """
+        """Given some choices, assign scores (dictionary values) to given criteria (dictionary keys).
+
+        Parameters
+        ----------
+        choices : list[str]
+            The name of the choices to be evaluated.
+
+        Keyword args
+        ------------
+        **criteria_to_scores : list[dict[str, float]]
+            The collection of criterion-score pairs. The criteria name is a string
+            and the score given is a float.
+
+        Raises
+        ------
+        ValueError
+            * If any of the given criteria is not continuous.
+
+
+            * If any of the given criteria has not been added yet; its weight is unknown.
+
+
         Examples
         --------
         >>> import matrix
