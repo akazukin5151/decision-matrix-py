@@ -511,7 +511,7 @@ class Matrix:
 
         Returns
         -------
-        Matrix
+        :class:`Matrix`
             Returns the instance so that it can be chained with the then() method.
 
         Examples
