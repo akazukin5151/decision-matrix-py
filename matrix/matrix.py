@@ -1,5 +1,10 @@
 """Module docstring
 
+Todo
+------
+In methods that adds criteria, criteria names and weights should be a dictionary
+
+
 Warning
 -------
 Avoid nonsensical values for all floats, such as nan, inf, and extremely large
