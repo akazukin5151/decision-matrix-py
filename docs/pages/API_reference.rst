@@ -6,7 +6,7 @@ API reference
 .. autosummary::
     :toctree: autosummary
 
-    Matrix.__init__
+    Matrix
     Matrix.__repr__
     Matrix.all_choices
     Matrix.all_criteria
