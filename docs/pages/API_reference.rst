@@ -1,6 +1,8 @@
 API reference
 =============
 
+.. automodule:: matrix.matrix
+
 .. currentmodule:: matrix
 
 .. autosummary::
