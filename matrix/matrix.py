@@ -698,18 +698,28 @@ class Matrix:
             ignore_index=True
         )
 
-    def add_data(self, choice: str, **criteria_to_values: float):
+    def add_data(self,
+        choice: str,
+        dict_: 'dict[str, float]' = None,
+        **criteria_to_values: float):
         """Adds criterion data for the given choice, which is used to calculate their score.
 
         Parameters
         ----------
         choice : str
             The name of the choice.
+        dict_ : Optional[dict[str, float]]
+            The criterion-value pairs in the form of a dictionary.
 
         Keyword args
         ------------
         **criteria_to_values : float
-            The criterion-value pairs (str, float).
+            The criterion-value pairs (str, float) as keyword arguments.
+
+        Raises
+        ------
+        TypeError
+            If neither ``dict_`` nor ``criteria_to_values`` is given.
 
         Examples
         --------
@@ -722,7 +732,7 @@ class Matrix:
         >>> m.if_(size=0).then(score=0)
         >>> m.if_(size=10).then(score=10)
         >>> m.add_data('apple', price=2, size=3)
-        >>> m.add_data('orange', price=7, size=5)
+        >>> m.add_data('orange', {'price': 7, 'size': 5})
         >>> m
         |        |   size |   price | Percentage         |
         |:-------|-------:|--------:|:-------------------|
@@ -735,55 +745,23 @@ class Matrix:
         1   10.0          0.0   NaN         NaN
         2    NaN          NaN   0.0         0.0
         3    NaN          NaN  10.0        10.0
+
+        See also
+        --------
+        batch_add_data : The method that is wrapped
 
         Todo
         -------
         Use a more descriptive name
         """
-        self.batch_add_data({choice: criteria_to_values})
+        if dict_ and not criteria_to_values:
+            return self.batch_add_data({choice: dict_})
+        elif criteria_to_values:
+            return self.batch_add_data({choice: criteria_to_values})
 
-    def add_data_from_dict(self, choice: str, criteria_to_values: 'dict[str, float]'):
-        """Adds criterion data for the given choice, from a dictionary.
-        The key and values are the same as ``add_data``, so this method is
-        just for convenience to programatically add criteria without using eval.
-
-        Parameters
-        ----------
-        choice : str
-            The name of the choice.
-        criteria_to_values : dict[str, float]
-            The criterion-value pairs.
-
-        See also
-        --------
-        add_data : The method that is wrapped
-
-        Examples
-        --------
-        >>> import matrix
-        >>> m = matrix.Matrix('apple', 'orange')
-        >>> m.add_continuous_criterion('size', weight=4)
-        >>> m.add_continuous_criterion('price', weight=8)
-        >>> m.if_(price=0).then(score=10)
-        >>> m.if_(price=10).then(score=0)
-        >>> m.if_(size=0).then(score=0)
-        >>> m.if_(size=10).then(score=10)
-        >>> m.add_data_from_dict('apple', {'price': 2, 'size': 3})
-        >>> m.add_data_from_dict('orange', {'price': 7, 'size': 5})
-        >>> m
-        |        |   size |   price | Percentage         |
-        |:-------|-------:|--------:|:-------------------|
-        | Weight |      4 |       8 |                    |
-        | apple  |      3 |       8 | 63.33333333333333  |
-        | orange |      5 |       3 | 36.666666666666664 |
-        >>> m.value_score_df
-           price  price_score  size  size_score
-        0    0.0         10.0   NaN         NaN
-        1   10.0          0.0   NaN         NaN
-        2    NaN          NaN   0.0         0.0
-        3    NaN          NaN  10.0        10.0
-        """
-        self.batch_add_data({choice: criteria_to_values})
+        raise TypeError(
+            'Criteria values must be given either as a dictionary or as keyword args'
+        )
 
     def batch_add_data(self, choices_and_values: 'dict[str, dict[str, float]]'):
         """For multiple choices, add criterion data.
@@ -815,12 +793,6 @@ class Matrix:
         | Weight |      4 |       8 |                    |
         | apple  |      5 |       2 | 30.0               |
         | orange |      3 |       5 | 43.333333333333336 |
-
-        See also
-        --------
-        add_data : The method that is wrapped
-
-        add_data_from_dict : The method that is used internally
         """
         new = pd.DataFrame(choices_and_values).T
         for criterion in self.continuous_criteria:
