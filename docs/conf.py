@@ -54,17 +54,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'pydata_sphinx_theme'  # A fork of this is used
+html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
-    "show_prev_next": False,
-    "search_bar_position": "navbar",
     "external_links": [
         {"name": "Git", "url": "https://<link-one>"},
         {"name": "PyPI", "url": "https://<link-two>"}
     ]
-}
-html_sidebars = {
-   '**': [],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
