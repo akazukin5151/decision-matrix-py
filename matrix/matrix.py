@@ -4,7 +4,7 @@ Todo
 ------
 In methods that adds criteria, criteria names and weights should be a dictionary
 
-Better terminology overall.
+Better terminology overall; improve parameter names
 
 Better name for adding criteria values and their scores for continuous criteria.
 They should start with the word 'add'
