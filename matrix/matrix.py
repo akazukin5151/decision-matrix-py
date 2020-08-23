@@ -697,8 +697,17 @@ class Matrix:
                 pd.Series(score_lst, name=criterion + '_score'),
             ], axis=1)
 
-    def values_to_score_from_record(self, dictionary):
+    def values_to_score_from_record(self, dictionary: dict[str, list[tuple[float, float]]]):
         """
+        For multiple continuous criteria, declare what score should a choice receive
+        given values for that criterion.
+
+        Parameters
+        ----------
+        dictionary : dict[str, list[tuple[float, float]]]
+            The dictionary with keys for each criteria, and a list of tuples
+            that pairs the criterion value to the score.
+
         Todo
         ------
         Better name for adding criteria values and their scores for continuous criteria.
