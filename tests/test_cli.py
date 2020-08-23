@@ -352,7 +352,8 @@ def test_insufficient_args_continuous_quits(weights, values, scores, data):
     if scores:
         args += ['-S 10,5,0 ','-S 0,3,10 ']
 
-    if data and (not weights or not values):
+    # At least one of the four additional arguments must be false
+    if data and (not weights or not values or not scores):
         args += ['-d a,e,1 ', '-d a,f,2 ', '-d b,e,3 ', '-d b,f,4 ']
 
     result = runner.invoke(main, '-I ' + ''.join(args))
