@@ -189,8 +189,8 @@ def criterion_to_scores(continuous_criteria) -> 'tuple[list[float], list[float]]
 
 
 def ask_pairs() -> 'tuple[list[float], list[float]]':
-    criterion_values: 'list[int]' = []
-    scores: 'list[int]' = []
+    criterion_values: 'list[float]' = []
+    scores: 'list[float]' = []
     while True:
         ans = input('> ')
         if ans == ':wq':
@@ -203,11 +203,11 @@ def ask_pairs() -> 'tuple[list[float], list[float]]':
         value, score = ans.split(': ')
 
         if not value.isdigit() or not score.isdigit():
-            click.echo('Both value and score must be an int!')
+            click.echo('Both value and score must be a float!')
             continue
 
-        criterion_values.append(int(value))
-        scores.append(int(score))
+        criterion_values.append(float(value))
+        scores.append(float(score))
 
     return criterion_values, scores
 
