@@ -8,11 +8,19 @@ from rich.table import Table
 from matrix import Matrix
 
 
+def maybe_exit_insufficient(interact, *args):
+    if not all(args) and not interact:
+        click.get_current_context().fail(
+            'Insufficient information in non-interactive mode!\n'
+            'At the minimium, choices, criteria, weights, and scores must be supplied.'
+        )
+
+
 @click.command()
 @click.option('-c', '--choices', 'choices_tup', multiple=True)
 @click.option('-C', '--criteria', 'criteria_tup', multiple=True)
 @click.option('--continuous-criteria', 'continuous_criteria_tup', multiple=True)
-@click.option('--interact/--no-interact', ' /-I', default=True)
+@click.option('--interact/--no-interact', '-i/-I', default=True)
 @click.option('-w', '--weights', 'weights_tup', multiple=True)
 @click.option('-W', '--continuous-weights', 'c_weights_tup', multiple=True)
 @click.option('-s', '--scores', 'scores_tup', multiple=True)
@@ -25,6 +33,7 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
     # TODO: if interactive mode is on, all questions should be asked if value
     # not supplied via cli
     # If off, then no questions at all, throwing an error if not enough info
+    maybe_exit_insufficient(interact, choices_tup, criteria_tup, weights_tup, scores_tup)
 
     choices = maybe_ask_choices(choices_tup)
     criteria = maybe_ask_criteria(criteria_tup)

@@ -1,3 +1,4 @@
+import pytest
 from click.testing import CliRunner
 from matrix.cli import main
 
@@ -294,4 +295,33 @@ def test_input_all():
         '│ a       │ 1.0 │ 2.0 │ 9.5 │ 1.2 │ 42.642857142857146 │\n'
         '│ b       │ 3.0 │ 4.0 │ 8.5 │ 2.4 │ 48.50000000000001  │\n'
         '└─────────┴─────┴─────┴─────┴─────┴────────────────────┘\n'
+    )
+
+
+@pytest.mark.parametrize('num', list(range(13)))  # len of args + 1
+def test_insufficient_info_no_interact_fails(num):
+    runner = CliRunner()
+    args = (
+        '-c a,b ',
+        '-C c,d ',
+        '-w 1,2 ',
+        # Scores not here because it would be valid
+        '--continuous-criteria e,f ',
+        '-W 5,6 ',
+        '-V 0,10,20 ',
+        '-S 10,5,0 ',
+        '-V 0,5,10 ',
+        '-S 0,3,10 ',
+        '-d a,e,1 ',
+        '-d a,f,2 ',
+        '-d b,e,3 ',
+        '-d b,f,4 ',
+    )
+    result = runner.invoke(main, '-I ' + ''.join(args[:num]))
+    assert result.exit_code == 2
+    assert result.output == (
+        'Usage: main [OPTIONS]\n'
+        'Try "main --help" for help.\n\n'
+        'Error: Insufficient information in non-interactive mode!\n'
+        'At the minimium, choices, criteria, weights, and scores must be supplied.\n'
     )
