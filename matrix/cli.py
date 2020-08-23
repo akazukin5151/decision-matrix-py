@@ -22,6 +22,9 @@ from matrix import Matrix
 def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
          c_weights_tup, scores_tup, all_c_values, all_c_scores, data_tup: 'tuple[str]',
          interact: bool):
+    # TODO: if interactive mode is on, all questions should be asked if value
+    # not supplied via cli
+    # If off, then no questions at all, throwing an error if not enough info
 
     choices = maybe_ask_choices(choices_tup)
     criteria = maybe_ask_criteria(criteria_tup)
