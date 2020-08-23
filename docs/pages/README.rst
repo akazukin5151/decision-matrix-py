@@ -1,4 +1,7 @@
 Readme
 ======
 
+Goals
+-----
 
+* Fluent design

@@ -4,6 +4,13 @@ Todo
 ------
 In methods that adds criteria, criteria names and weights should be a dictionary
 
+Better terminology overall.
+
+Better name for adding criteria values and their scores for continuous criteria.
+They should start with the word 'add'
+
+Better name for 'add_data'
+
 
 Warning
 -------
@@ -210,6 +217,11 @@ class Matrix:
         | Weight |       5 |       2 |                   |
         | apple  |       4 |       8 | 51.42857142857142 |
         | orange |       7 |       5 | 64.28571428571429 |
+
+        Note
+        ------
+        It is slower to add new choices using this method, compared to using the constructor
+        or :func:`add_choices`.
         """
         self._reject_if_if_method_active()
         if np.any(weights == 0):
@@ -462,7 +474,7 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix(
-        ...     choices=('apple', 'orange'),
+        ...     choices=('apple', 'orange'),  # TODO: this shouldn't be needed
         ...     criteria=('taste', 'color'),
         ...     weights=(7, 3)
         ... )
@@ -662,6 +674,10 @@ class Matrix:
         0     0          10   0.0        10.0
         1    10           5  10.0         0.0
         2    15           0   NaN         NaN
+
+        Note
+        ------
+        This method has time complexity O(n) in respect to the length of the criteria.
         """
         for criterion, value_lst, score_lst in zip(
             criteria_names, all_values, all_scores
@@ -683,10 +699,6 @@ class Matrix:
             The dictionary with keys for each criteria, and a list of tuples
             that pairs the criterion value to the score.
 
-        Todo
-        ------
-        Better name for adding criteria values and their scores for continuous criteria.
-
         Examples
         --------
         >>> import matrix
@@ -702,6 +714,10 @@ class Matrix:
         0     0          10   0.0        10.0
         1    10           5  10.0         0.0
         2    15           0   NaN         NaN
+
+        Note
+        ------
+        This method has time complexity O(n) in respect to the length of the outer dictionary.
         """
         for criterion, record in dictionary.items():
             self._criterion_value_to_score = pd.concat([
@@ -812,10 +828,6 @@ class Matrix:
         See also
         --------
         batch_add_data : The method that is wrapped
-
-        Todo
-        -------
-        Use a more descriptive name
         """
         if values_dict and not criteria_to_values:
             return self.batch_add_data({choice: values_dict})
@@ -856,6 +868,10 @@ class Matrix:
         | Weight |      4 |       8 |                    |
         | apple  |      5 |       2 | 30.0               |
         | orange |      3 |       5 | 43.333333333333336 |
+
+        Note
+        ------
+        This method has time complexity O(n) in respect to the number of continuous criteria.
         """
         new = pd.DataFrame(choices_and_values).T
         for criterion in self.continuous_criteria:
