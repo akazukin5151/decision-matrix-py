@@ -22,6 +22,7 @@ API reference
     Matrix.if_
     Matrix.then
     Matrix.criteria_values_to_scores
+    Matrix.values_to_score_from_record
     Matrix.criterion_value_to_score
     Matrix.add_data
     Matrix.batch_add_data
