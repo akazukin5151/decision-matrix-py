@@ -429,7 +429,7 @@ class Matrix:
         Parameters
         ----------
         choices_and_criteria_to_scores : dict[str, dict[str, float]]
-            The name of the choices to be evaluated.
+            The nested dictionary containing the choices and the scores for each criteria.
 
         Raises
         ------
