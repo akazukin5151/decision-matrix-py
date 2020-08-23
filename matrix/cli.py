@@ -35,10 +35,10 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
     data = maybe_ask_data(data_tup, continuous_criteria, choices)
 
     m = Matrix(*choices, criteria=criteria, weights=weights)
-    m.score_choices(all_scores.keys(), all_scores.values())
+    m.score_choices(all_scores)
     m.add_continuous_criteria(*continuous_criteria, weights=cc_weights)
     m.criteria_values_to_scores(continuous_criteria, value_scores[0], value_scores[1])
-    m.batch_add_data(data.keys(), data.values())
+    m.batch_add_data(data)
 
     display_table(m.df)
 
