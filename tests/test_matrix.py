@@ -331,3 +331,109 @@ def test_add_criteria_also_adds_unknown_choices():
     assert m.df.loc['orange', 'color'] == 3
     assert m.df.loc['orange', 'taste'] == 4
 
+
+def test_update_weight_no_percentage():
+    m = matrix.Matrix()
+    m.add_criteria('color', 'taste', weights=(4, 7))
+    assert 'Percentage' not in m.df.index
+    m.update_weight('color', 9)
+    assert m.df.loc['Weight', 'color'] == 9
+    assert 'Percentage' not in m.df.index
+
+
+def test_update_weight():
+    m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
+    m.score_choice('apple', taste=1, color=2)
+    m.score_choice('orange', taste=3, color=4)
+    old_percentages = m.df.loc[:, 'Percentage']
+
+    m.update_weight('color', 9)
+    assert m.df.loc['Weight', 'color'] == 9
+    assert (m.df.loc[:, 'Percentage'] != old_percentages).any()
+
+
+def test_rename_criteria():
+    m = matrix.Matrix()
+    m.add_criteria('color', 'taste', weights=(4, 7))
+    m.rename_criteria('color', 'colour')
+    assert 'colour' in m.df.columns
+    assert 'color' not in m.df.columns
+
+
+def test_rename_criteria_multiple():
+    m = matrix.Matrix()
+    m.add_criteria('color', 'taste', weights=(4, 7))
+    m.rename_criteria(color='colour', taste='flavour')
+    assert 'colour' in m.df.columns
+    assert 'color' not in m.df.columns
+    assert 'flavour' in m.df.columns
+    assert 'taste' not in m.df.columns
+
+
+def test_rename_choices():
+    m = matrix.Matrix('apple', 'orange')
+    m.rename_choices('apple', 'pear')
+    assert 'pear' in m.df.index
+    assert 'apple' not in m.df.index
+
+
+def test_rename_choices_multiple():
+    m = matrix.Matrix('apple', 'orange')
+    m.rename_choices(apple='pear', orange='lemon')
+    assert 'pear' in m.df.index
+    assert 'apple' not in m.df.index
+    assert 'lemon' in m.df.index
+    assert 'orange' not in m.df.index
+
+
+def test_rename_choices_raise():
+    m = matrix.Matrix('apple', 'orange')
+    msg = (
+        'Either a choice and a name should be given, or keyword arguments '
+        'that maps the old names to the new names'
+    )
+    with pytest.raises(TypeError, match=msg):
+        m.rename_choices()
+
+    with pytest.raises(TypeError, match=msg):
+        m.rename_choices('apple')
+
+
+def test_rename_criteria_raise():
+    m = matrix.Matrix()
+    msg = (
+        'Either a criterion and a name should be given, or keyword arguments '
+        'that maps the old names to the new names'
+    )
+    with pytest.raises(TypeError, match=msg):
+        m.rename_criteria()
+
+    with pytest.raises(TypeError, match=msg):
+        m.rename_criteria('taste')
+
+
+@given(non_nan_floats, non_nan_floats, floats_for_weights)
+def test_update_score(score1, new_score, weight):
+    m = matrix.Matrix(choices=('apple',), criteria=('taste',), weights=(weight))
+    m.score_criterion('taste', apple=score1)
+    old_percentage = m.df.loc['apple', 'Percentage']
+
+    m.update_score('apple', 'taste', new_score)
+    assert m.df.loc['apple', 'taste'] == new_score
+    # Ignore errors that uses absurd numbers
+    if score1 != new_score and 0 <= score1 <= 100 and 0 <= new_score <= 100:
+        assert m.df.loc['apple', 'Percentage'] != old_percentage
+
+
+def test_update_criterion_value_to_score():
+    m = matrix.Matrix('apple')
+    m.add_continuous_criterion('price', weight=8)
+    m.criterion_value_to_score('price', {
+        0: 10,
+        3: 5,
+        10: 0
+    })
+    assert m.value_score_df.loc[0, 'price_score'] == 10
+
+    m.update_criterion_value_to_score('price', value=0, new_score=3)
+    assert m.value_score_df.loc[0, 'price_score'] == 3

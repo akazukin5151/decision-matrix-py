@@ -846,7 +846,8 @@ class Matrix:
         Parameters
         ----------
         choices_and_values : dict[str, dict[str, float]]
-            The name of the choice The criterion-value pairs.
+            The nested dictionary that maps the choices to another dictionary.
+            The inner dictionary maps the criteria to the data.
 
         Examples
         --------
@@ -887,6 +888,183 @@ class Matrix:
         self.df.update(new)
         self._calculate_percentage()
 
+    def update_weight(self, criterion: str, weight: float):
+        """Update the weight of a given criterion
+
+        Parameters
+        ----------
+        criterion : str
+            The name of the criterion.
+        weight : float
+            The new value for the weight.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix(
+        ...     choices=('apple', 'orange'),
+        ...     criteria=('taste', 'color'),
+        ...     weights=(7, 3)
+        ... )
+        >>> m.score_choice('apple', taste=1, color=2)
+        >>> m.score_choice('orange', taste=3, color=4)
+        >>> m.update_weight('color', 9)
+        >>> m
+        |        |   taste |   color | Percentage   |
+        |:-------|--------:|--------:|:-------------|
+        | Weight |       7 |       9 |              |
+        | apple  |       1 |       2 | 15.625       |
+        | orange |       3 |       4 | 35.625       |
+        """
+        self.df.loc['Weight', criterion] = weight
+        if len(self.df.index) > 1:
+            self._calculate_percentage()
+
+    def rename_criteria(self, criterion: str = None, name: str = None, **old_to_new_names: str):
+        """Update the name of a given criterion
+
+        Parameters
+        ----------
+        criterion : Optional[str]
+            The old criterion name.
+        name : Optional[str]
+            The new criterion name.
+
+        Keyword args
+        ------------
+        **old_to_new_names : str
+            The mapping of old names to new names.
+
+        Raises
+        ------
+        TypeError
+            If neither (``criterion`` and ``name``) nor ``old_to_new_names`` is given.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix()
+        >>> m.add_criteria('color', 'taste', weights=(4, 7))
+        >>> m.rename_criteria('color', 'colour')
+        >>> m
+        |        |   colour |   taste |
+        |:-------|---------:|--------:|
+        | Weight |        4 |       7 |
+
+        >>> m = matrix.Matrix()
+        >>> m.add_criteria('color', 'taste', weights=(4, 7))
+        >>> m.rename_criteria(color='colour', taste='flavour')
+        >>> m
+        |        |   colour |   flavour |
+        |:-------|---------:|----------:|
+        | Weight |        4 |         7 |
+        """
+        self._renamer('columns', 'criterion', criterion, name, **old_to_new_names)
+
+    def rename_choices(self, choice: str = None, name: str = None, **old_to_new_names: str):
+        """Update the name of a given choice
+
+        Parameters
+        ----------
+        choice : Optional[str]
+            The old choice name.
+        name : Optional[str]
+            The new choice name.
+
+        Keyword args
+        ------------
+        **old_to_new_names : str
+            The mapping of old names to new names.
+
+        Raises
+        ------
+        TypeError
+            If neither (``criterion`` and ``name``) nor ``old_to_new_names`` is given.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix('apple', 'orange')
+        >>> m.rename_choices('apple', 'pear')
+        >>> m
+        |:-------|
+        | Weight |
+        | pear   |
+        | orange |
+
+        >>> m = matrix.Matrix('apple', 'orange')
+        >>> m.rename_choices(apple='pear', orange='lemon')
+        >>> m
+        |:-------|
+        | Weight |
+        | pear   |
+        | lemon  |
+        """
+        self._renamer('index', 'choice', choice, name, **old_to_new_names)
+
+    def update_score(self, choice: str, criterion: str, score: float):
+        """Update the score given to the choice in the criterion
+
+        Parameters
+        ----------
+        choice : str
+            The name of the choice whose score is to be updated.
+        criterion : str
+            The name of the criterion whose score is to be updated.
+        score : float
+            The new score value.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix(choices=('apple',), criteria=('taste',), weights=(7,))
+        >>> m.score_criterion('taste', apple=4)
+        >>> m.update_score('apple', 'taste', 8)
+        >>> m
+        |        |   taste | Percentage   |
+        |:-------|--------:|:-------------|
+        | Weight |       7 |              |
+        | apple  |       8 | 80.0         |
+        """
+        self.df.loc[choice, criterion] = score
+        self._calculate_percentage()
+
+    def update_criterion_value_to_score(self, continuous_criterion: str, value: float, new_score: float):
+        """Update the value and/or score pair of a given continuous criterion
+
+        Parameters
+        ----------
+        continuous_criterion : str
+            The name of the continuous criterion whose score is to be updated.
+        value : float
+            The criterion value whose score is to be updated.
+        new_score : float
+            The new score value.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix('apple')
+        >>> m.add_continuous_criterion('price', weight=8)
+        >>> m.criterion_value_to_score('price', {
+        ...     0: 10,
+        ...     3: 5,
+        ...     10: 0
+        ... })
+        >>> m.value_score_df
+           price  price_score
+        0      0           10
+        1      3            5
+        2     10            0
+        >>> m.update_criterion_value_to_score('price', value=0, new_score=3)
+        >>> m.value_score_df
+           price  price_score
+        0      0            3
+        1      3            5
+        2     10            0
+        """
+        self.value_score_df.loc[value, continuous_criterion + '_score'] = new_score
+
     def plot_interpolator(self, criterion_name: str, start=0, end=10):
         """Visualize the interpolator function used.
         Needs to explicitly show the plot with `plt.show()`
@@ -908,6 +1086,7 @@ class Matrix:
         x = np.arange(start, end)
         y = self._interpolators[criterion_name](x)
         plt.plot(x, y)
+
 
     def _setup(self, *choices: str, **kwargs):
         """See docstring for __init__"""
@@ -945,3 +1124,14 @@ class Matrix:
         if self._if_method_active:
             self._if_method_active = False
             raise SyntaxError('if_() method not followed by a then() method!')
+
+    def _renamer(self, axis, first, old=None, new=None, **old_to_new):
+        if old_to_new:
+            self.df = self.df.rename(old_to_new, axis=axis)
+        elif old and new:
+            self.df = self.df.rename({old: new}, axis=axis)
+        else:
+            raise TypeError(
+                f'Either a {first} and a name should be given, or keyword arguments '
+                'that maps the old names to the new names'
+            )

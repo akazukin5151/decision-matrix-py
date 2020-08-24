@@ -28,4 +28,9 @@ API reference
     Matrix.criterion_value_to_score
     Matrix.add_data
     Matrix.batch_add_data
+    Matrix.update_weight
+    Matrix.rename_criteria
+    Matrix.rename_choices
+    Matrix.update_score
+    Matrix.update_criterion_value_to_score
     Matrix.plot_interpolator
