@@ -2,14 +2,14 @@
 
 Todo
 ------
-In methods that adds criteria, criteria names and weights should be a dictionary
-
-Better terminology overall; improve parameter names
-
-Better name for adding criteria values and their scores for continuous criteria.
-They should start with the word 'add'
-
-Better name for 'add_data'
+- API
+    - In methods that adds criteria, criteria names and weights should be a dictionary
+    - For rate_choices, the choices doesn't need to be specified before.
+- Names
+    - Better terminology overall; improve parameter names
+    - Better name for adding criteria values and their scores for continuous criteria.
+      They should start with the word 'add'
+    - Better name for 'add_data'
 
 
 Warning
@@ -1071,7 +1071,7 @@ class Matrix:
             ...     'apple': {'taste': 7, 'color': 5},
             ...     'orange': {'taste': 9, 'color': 3}
             ... })
-            >>> m.plot()
+            >>> m.plot()  # doctest: +SKIP
         """
         self._reject_if_if_method_active()
         self.df[1:].plot.bar(y='Percentage')
