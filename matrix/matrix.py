@@ -260,9 +260,6 @@ class Matrix:
         ------------
         weights : tuple[float]
             How important the criteria are (usually on a 0-10 scale), in order of declaration.
-        **choices_to_scores : tuple[float], optional
-            Immediately assign scores (dictionary values) to given choices (dictionary keys).
-            The tuples must be in the same order of the criteria.
 
         Raises
         ------
@@ -344,8 +341,6 @@ class Matrix:
         ------------
         weight : float
             How important this criterion is (usually on a 0-10 scale).
-        **choices_to_scores : float, optional
-            Immediately assign a score (dictionary values) to given choices (dictionary keys).
 
         Raises
         ------
