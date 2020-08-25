@@ -457,8 +457,7 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix(
-        ...     choices=('apple', 'orange'),  # TODO: this shouldn't be needed
-        ...     criteria=('taste', 'color'),
+        ...     criteria=('taste', 'color'),  # No need to add choices here
         ...     weights=(7, 3)
         ... )
         >>> m.rate_choices({
@@ -481,6 +480,11 @@ class Matrix:
                 raise ValueError('Cannot assign a rating to a continuous criterion!')
             if criterion not in self.df.columns:
                 raise ValueError('Criterion has not been added yet, weight is unknown!')
+
+        # If some choices has not been added first, add them now anyway
+        if len(self.df.index) < len(new.index):
+            unadded_choices = new.index.difference(self.df.index)
+            self.df = self.df.reindex(self.df.index.append(pd.Index(unadded_choices)))
 
         self.df.update(new)
         self._calculate_percentage()
