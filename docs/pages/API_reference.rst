@@ -33,4 +33,5 @@ API reference
     Matrix.update_rating
     Matrix.update_criterion_value_to_score
     Matrix.remove_criterion_value_to_score
+    Matrix.plot
     Matrix.plot_interpolator

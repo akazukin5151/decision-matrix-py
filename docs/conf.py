@@ -31,7 +31,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'matplotlib.sphinxext.plot_directive',
 ]
 
 autodoc_member_order = 'bysource'

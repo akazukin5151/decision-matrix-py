@@ -1053,6 +1053,30 @@ class Matrix:
             self.value_score_df.drop(row).reset_index(drop=True)
         )
 
+    def plot(self):
+        """Visualise the percentages of all choices.
+
+        Examples
+        --------
+        .. plot::
+            :include-source: True
+
+            >>> import matrix
+            >>> m = matrix.Matrix(
+            ...     choices=('apple', 'orange'),  # TODO: this shouldn't be needed
+            ...     criteria=('taste', 'color'),
+            ...     weights=(7, 3)
+            ... )
+            >>> m.rate_choices({
+            ...     'apple': {'taste': 7, 'color': 5},
+            ...     'orange': {'taste': 9, 'color': 3}
+            ... })
+            >>> m.plot()
+        """
+        self._reject_if_if_method_active()
+        self.df[1:].plot.bar(y='Percentage')
+        plt.show()
+
     def plot_interpolator(self, criterion_name: str, start=0, end=10):
         """Visualize the interpolator function used.
         Needs to explicitly show the plot with `plt.show()`

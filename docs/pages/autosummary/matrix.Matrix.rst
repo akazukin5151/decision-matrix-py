@@ -24,6 +24,7 @@ matrix.Matrix
       ~Matrix.criteria_values_to_scores
       ~Matrix.criterion_value_to_score
       ~Matrix.if_
+      ~Matrix.plot
       ~Matrix.plot_interpolator
       ~Matrix.rate_choice
       ~Matrix.rate_choices
