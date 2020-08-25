@@ -223,16 +223,7 @@ class Matrix:
                 choices_to_ratings, columns=criteria, orient='index'
             )
 
-            # If some choices has not been added first, add them now anyway
-            if len(self.df.index) < len(new.index):
-                unadded_choices = {
-                    choice: np.nan
-                    for choice in set(new.index).difference(self.df.index)
-                }
-                self.df = self.df.combine_first(
-                    pd.DataFrame.from_dict(unadded_choices, orient='index')
-                )
-
+            self._add_unadded_choices(new)
             self.df.update(new)
             self._calculate_percentage()
 
@@ -373,7 +364,7 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix(
-        ...     choices=('apple', 'orange'),
+        ...     # choices=('apple', 'orange'),  # No need to add choices here!
         ...     criteria=('taste',),
         ...     weights=(7,)
         ... )
@@ -391,12 +382,11 @@ class Matrix:
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
 
-        self.df.update(
-            pd.DataFrame.from_dict(
-                choices_to_ratings, columns=[criterion], orient='index'
-            )
+        new = pd.DataFrame.from_dict(
+            choices_to_ratings, columns=[criterion], orient='index'
         )
-
+        self._add_unadded_choices(new)
+        self.df.update(new)
         self._calculate_percentage()
 
     def rate_choice(self, choice: str, **criteria_to_ratings: float):
@@ -481,11 +471,7 @@ class Matrix:
             if criterion not in self.df.columns:
                 raise ValueError('Criterion has not been added yet, weight is unknown!')
 
-        # If some choices has not been added first, add them now anyway
-        if len(self.df.index) < len(new.index):
-            unadded_choices = new.index.difference(self.df.index)
-            self.df = self.df.reindex(self.df.index.append(pd.Index(unadded_choices)))
-
+        self._add_unadded_choices(new)
         self.df.update(new)
         self._calculate_percentage()
 
@@ -1118,6 +1104,12 @@ class Matrix:
                     raise ValueError('Weights cannot be equal to zero!')
 
                 self.add_criteria(*kwargs['criteria'], weights=kwargs['weights'])
+
+    def _add_unadded_choices(self, new):
+        # If some choices has not been added first, add them now anyway
+        if len(self.df.index) < len(new.index):
+            unadded_choices = new.index.difference(self.df.index)
+            self.df = self.df.reindex(self.df.index.append(pd.Index(unadded_choices)))
 
     def _calculate_percentage(self):
         """Calculates the Percentage column"""
