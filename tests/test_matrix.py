@@ -421,7 +421,12 @@ def test_update_score(score1, new_score, weight):
     m.update_score('apple', 'taste', new_score)
     assert m.df.loc['apple', 'taste'] == new_score
     # Ignore errors that uses absurd numbers
-    if score1 != new_score and 0 <= score1 <= 100 and 0 <= new_score <= 100:
+    if (
+        score1 != new_score
+        and 0 <= score1 <= 100 and
+        0 <= new_score <= 100 and
+        0 <= weight <= 100
+    ):
         assert m.df.loc['apple', 'Percentage'] != old_percentage
 
 
@@ -437,3 +442,12 @@ def test_update_criterion_value_to_score():
 
     m.update_criterion_value_to_score('price', value=0, new_score=3)
     assert m.value_score_df.loc[0, 'price_score'] == 3
+
+
+def test_remove_criterion_value_to_score():
+    m = matrix.Matrix()
+    m.add_continuous_criterion('price', weight=8)
+    m.criterion_value_to_score('price', {0: 10, 10: 5, 15: 0})
+    m.remove_criterion_value_to_score(1)
+    assert m.value_score_df.loc[1, 'price'] == 15
+    assert m.value_score_df.loc[1, 'price_score'] == 0

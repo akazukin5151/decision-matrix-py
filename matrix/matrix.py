@@ -1065,6 +1065,30 @@ class Matrix:
         """
         self.value_score_df.loc[value, continuous_criterion + '_score'] = new_score
 
+    def remove_criterion_value_to_score(self, row: int):
+        """Removes a row in the continuous criterion value to score dataframe.
+
+        Parameters
+        ----------
+        row : int
+            The row or index to remove.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix()
+        >>> m.add_continuous_criterion('price', weight=8)
+        >>> m.criterion_value_to_score('price', {0: 10, 10: 5, 15: 0})
+        >>> m.remove_criterion_value_to_score(1)
+        >>> m.value_score_df
+           price  price_score
+        0      0           10
+        1     15            0
+        """
+        self._criterion_value_to_score = (
+            self._criterion_value_to_score.drop(row).reset_index(drop=True)
+        )
+
     def plot_interpolator(self, criterion_name: str, start=0, end=10):
         """Visualize the interpolator function used.
         Needs to explicitly show the plot with `plt.show()`
