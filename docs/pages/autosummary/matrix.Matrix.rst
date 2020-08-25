@@ -25,6 +25,7 @@ matrix.Matrix
       ~Matrix.criterion_value_to_score
       ~Matrix.if_
       ~Matrix.plot_interpolator
+      ~Matrix.remove_criterion_value_to_score
       ~Matrix.rename_choices
       ~Matrix.rename_criteria
       ~Matrix.score_choice
