@@ -47,6 +47,5 @@ matrix.Matrix
    
       ~Matrix.all_choices
       ~Matrix.all_criteria
-      ~Matrix.value_score_df
    
    

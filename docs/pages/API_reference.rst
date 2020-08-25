@@ -12,7 +12,6 @@ API reference
     Matrix.__repr__
     Matrix.all_choices
     Matrix.all_criteria
-    Matrix.value_score_df
     Matrix.add_choices
     Matrix.add_criteria
     Matrix.add_continuous_criteria

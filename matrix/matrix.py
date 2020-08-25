@@ -46,10 +46,12 @@ class Matrix:
 
         Attributes
         ----------
-        df : DataFrame
+        df : pd.DataFrame
             The pandas DataFrame of the decision matrix.
         continuous_criteria : list[str]
             The names of the criteria that are added as continuous.
+        value_score_df : pd.DataFrame
+            The pandas DataFrame storing the continuous criterion values to scores mapping.
 
         Raises
         ------
@@ -90,8 +92,8 @@ class Matrix:
 
         # Columns: str   ==> <continuous_criterion>       , <continuous_criterion>_score
         # Rows   : float ==> if <criterion value> is this, then <score> is this
-        self._criterion_value_to_score: 'pd.DataFrame[float]'
-        self._criterion_value_to_score = pd.DataFrame()
+        self.value_score_df: 'pd.DataFrame[float]'
+        self.value_score_df = pd.DataFrame()
 
         # Key  : str      ==> criterion name
         # Value: interp1d ==> interpolator function(v: float) -> float
@@ -137,18 +139,6 @@ class Matrix:
         """
         self._reject_if_if_method_active()
         return list(self.df.columns.drop('Percentage', errors='ignore'))
-
-    @property
-    def value_score_df(self) -> pd.DataFrame:
-        """Provides read-only access to the final decision matrix
-
-        Returns
-        -------
-        DataFrame
-            The pandas DataFrame containing criterion values and their corresponding scores.
-        """
-        self._reject_if_if_method_active()
-        return self._criterion_value_to_score
 
     def add_choices(self, *choices: str):
         """Add items to choose from into the matrix.
@@ -677,8 +667,8 @@ class Matrix:
         for criterion, value_lst, score_lst in zip(
             criteria_names, all_values, all_scores
         ):
-            self._criterion_value_to_score = pd.concat([
-                self._criterion_value_to_score,
+            self.value_score_df = pd.concat([
+                self.value_score_df,
                 pd.Series(value_lst, name=criterion),
                 pd.Series(score_lst, name=criterion + '_score'),
             ], axis=1)
@@ -715,8 +705,8 @@ class Matrix:
         This method has time complexity O(n) in respect to the length of the outer dictionary.
         """
         for criterion, record in dictionary.items():
-            self._criterion_value_to_score = pd.concat([
-                self._criterion_value_to_score,
+            self.value_score_df = pd.concat([
+                self.value_score_df,
                 pd.DataFrame.from_records(
                     record,
                     columns=[criterion, criterion + '_score']
@@ -766,8 +756,8 @@ class Matrix:
             columns=[criterion_name, criterion_name + '_score'],
         )
 
-        self._criterion_value_to_score = pd.concat(
-            [self._criterion_value_to_score, other], ignore_index=True
+        self.value_score_df = pd.concat(
+            [self.value_score_df, other], ignore_index=True
         )
 
     def add_data(
@@ -1061,27 +1051,8 @@ class Matrix:
         self.value_score_df.loc[value, continuous_criterion + '_score'] = new_score
 
     def remove_criterion_value_to_score(self, row: int):
-        """Removes a row in the continuous criterion value to score dataframe.
-
-        Parameters
-        ----------
-        row : int
-            The row or index to remove.
-
-        Examples
-        --------
-        >>> import matrix
-        >>> m = matrix.Matrix()
-        >>> m.add_continuous_criterion('price', weight=8)
-        >>> m.criterion_value_to_score('price', {0: 10, 10: 5, 15: 0})
-        >>> m.remove_criterion_value_to_score(1)
-        >>> m.value_score_df
-           price  price_score
-        0      0           10
-        1     15            0
-        """
-        self._criterion_value_to_score = (
-            self._criterion_value_to_score.drop(row).reset_index(drop=True)
+        self.value_score_df= (
+            self.value_score_df.drop(row).reset_index(drop=True)
         )
 
     def plot_interpolator(self, criterion_name: str, start=0, end=10):

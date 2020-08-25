@@ -191,8 +191,8 @@ def test_if_then_chain(cost1, cost2, cost3, score1, score2, score3):
     m.if_(cost=cost1).then(score=score1)
     m.if_(cost=cost2).then(score=score2)
     m.if_(cost=cost3).then(score=score3)
-    assert list(m._criterion_value_to_score.loc[:, 'cost']) == [cost1, cost2, cost3]
-    assert list(m._criterion_value_to_score.loc[:, 'cost_score']) == [score1, score2, score3]
+    assert list(m.value_score_df.loc[:, 'cost']) == [cost1, cost2, cost3]
+    assert list(m.value_score_df.loc[:, 'cost_score']) == [score1, score2, score3]
 
 
 def test_if_then_not_a_criteria_raises():
@@ -229,8 +229,8 @@ def test_criterion_value_to_score():
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
     m.add_continuous_criterion('cost', weight=9)
     m.criterion_value_to_score('cost', {0: 10, 10: 5, 30: 0})
-    assert list(m._criterion_value_to_score.loc[:, 'cost']) == [0, 10, 30]
-    assert list(m._criterion_value_to_score.loc[:, 'cost_score']) == [10, 5, 0]
+    assert list(m.value_score_df.loc[:, 'cost']) == [0, 10, 30]
+    assert list(m.value_score_df.loc[:, 'cost_score']) == [10, 5, 0]
 
 
 def test_criterion_value_to_score_before_adding_criterion_raises():
