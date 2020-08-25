@@ -52,6 +52,8 @@ class Matrix:
             The names of the criteria that are added as continuous.
         value_score_df : pd.DataFrame
             The pandas DataFrame storing the continuous criterion values to scores mapping.
+            The columns are each continuous criteria and their score.
+            The rows represent one value-score pair.
 
         Raises
         ------
@@ -89,10 +91,6 @@ class Matrix:
         """
         self.df = pd.DataFrame(index=('Weight',))
         self.continuous_criteria: 'list[str]' = []
-
-        # Columns: str   ==> <continuous_criterion>       , <continuous_criterion>_score
-        # Rows   : float ==> if <criterion value> is this, then <score> is this
-        self.value_score_df: 'pd.DataFrame[float]'
         self.value_score_df = pd.DataFrame()
 
         # Key  : str      ==> criterion name
