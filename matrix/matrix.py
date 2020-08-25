@@ -1039,6 +1039,13 @@ class Matrix:
         self.value_score_df.loc[value, continuous_criterion + '_score'] = new_score
 
     def remove_criterion_value_to_score(self, row: int):
+        """Remove a criterion value-score pair by row/index number.
+
+        Parameters
+        ----------
+        row : int
+            The row number to remove.
+        """
         self.value_score_df= (
             self.value_score_df.drop(row).reset_index(drop=True)
         )
