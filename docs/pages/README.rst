@@ -13,7 +13,7 @@ Terminology
      - Lourenzutti et al. (2016) [#f3]_
      - Park et al. (2011) [#f4]_
      - Devi (2011) [#f5]_
-   * - Choices
+   * - **Choices**
      - Alternatives
      - Alternatives
      - Alternatives
