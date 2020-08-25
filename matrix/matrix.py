@@ -411,7 +411,7 @@ class Matrix:
         --------
         >>> import matrix
         >>> m = matrix.Matrix(
-        ...     choices=('apple',),
+        ...     # choices=('apple',),  # No need to add choice here!
         ...     criteria=('taste', 'color'),
         ...     weights=(7, 3)
         ... )
@@ -1106,8 +1106,9 @@ class Matrix:
                 self.add_criteria(*kwargs['criteria'], weights=kwargs['weights'])
 
     def _add_unadded_choices(self, new):
-        # If some choices has not been added first, add them now anyway
-        if len(self.df.index) < len(new.index):
+        """If some choices has not been added first, add them now anyway"""
+        # Minus one to ignore the weight row
+        if len(self.df.index) - 1 < len(new.index):
             unadded_choices = new.index.difference(self.df.index)
             self.df = self.df.reindex(self.df.index.append(pd.Index(unadded_choices)))
 
