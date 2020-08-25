@@ -176,7 +176,7 @@ class Matrix:
         self,
         *criteria: str,
         weights: tuple[float],
-        **choices_to_scores: tuple[float]
+        **choices_to_ratings: tuple[float]
     ):
         """Add multiple criteria into the matrix to evaluate each choice against.
 
@@ -189,8 +189,8 @@ class Matrix:
         ------------
         weights : tuple[float]
             How important the criteria are (usually on a 0-10 scale), in order of declaration.
-        **choices_to_scores : tuple[float], optional
-            Immediately assign scores (dictionary values) to given choices (dictionary keys).
+        **choices_to_ratings : tuple[float], optional
+            Immediately assign ratings (dictionary values) to given choices (dictionary keys).
             The tuples must be in the same order of the criteria.
 
         Raises
@@ -230,9 +230,9 @@ class Matrix:
         self.df = self.df.append(pd.DataFrame(columns=criteria))
         self.df.loc['Weight', [*criteria]] = weights
 
-        if choices_to_scores:
+        if choices_to_ratings:
             new = pd.DataFrame.from_dict(
-                choices_to_scores, columns=criteria, orient='index'
+                choices_to_ratings, columns=criteria, orient='index'
             )
 
             # If some choices has not been added first, add them now anyway
@@ -286,7 +286,7 @@ class Matrix:
         self.continuous_criteria += list(criteria)
 
     def add_criterion(
-        self, criterion: str, *, weight: float, **choices_to_scores: float
+        self, criterion: str, *, weight: float, **choices_to_ratings: float
     ):
         """Add a criterion into the matrix to evaluate each choice against.
 
@@ -299,8 +299,8 @@ class Matrix:
         ------------
         weight : float
             How important this criterion is (usually on a 0-10 scale).
-        **choices_to_scores : float, optional
-            Immediately assign a score (dictionary values) to given choices (dictionary keys).
+        **choices_to_ratings : float, optional
+            Immediately assign a rating (dictionary values) to given choices (dictionary keys).
 
         Raises
         ------
@@ -330,7 +330,7 @@ class Matrix:
         if np.any(weight == 0):
             raise ValueError('Weights cannot be equal to zero!')
 
-        self.add_criteria(criterion, weights=weight, **choices_to_scores)
+        self.add_criteria(criterion, weights=weight, **choices_to_ratings)
 
     def add_continuous_criterion(self, criterion: str, *, weight: float):
         """Add a continuous criterion into the matrix to evaluate each choice against.
@@ -368,8 +368,8 @@ class Matrix:
         self.add_criterion(criterion, weight=weight)
         self.continuous_criteria.append(criterion)
 
-    def score_criterion(self, criterion: str, **choices_to_scores: float):
-        """Given a criterion, assign scores (dictionary values) to given choices (dictionary keys).
+    def rate_criterion(self, criterion: str, **choices_to_ratings: float):
+        """Given a criterion, assign ratings (dictionary values) to given choices (dictionary keys).
 
         Parameters
         ----------
@@ -378,8 +378,8 @@ class Matrix:
 
         Keyword args
         ------------
-        **choices_to_scores : float
-            The choice-score pairs.
+        **choices_to_ratings : float
+            The choice-rating pairs.
 
         Raises
         ------
@@ -394,7 +394,7 @@ class Matrix:
         ...     criteria=('taste',),
         ...     weights=(7,)
         ... )
-        >>> m.score_criterion('taste', apple=7, orange=9)
+        >>> m.rate_criterion('taste', apple=7, orange=9)
         >>> m
         |        |   taste | Percentage   |
         |:-------|--------:|:-------------|
@@ -404,20 +404,20 @@ class Matrix:
         """
         self._reject_if_if_method_active()
         if criterion in self.continuous_criteria:
-            raise ValueError('Cannot assign a score to a continuous criterion!')
+            raise ValueError('Cannot assign a rating to a continuous criterion!')
         if criterion not in self.df.columns:
             raise ValueError('Criterion has not been added yet, weight is unknown!')
 
         self.df.update(
             pd.DataFrame.from_dict(
-                choices_to_scores, columns=[criterion], orient='index'
+                choices_to_ratings, columns=[criterion], orient='index'
             )
         )
 
         self._calculate_percentage()
 
-    def score_choice(self, choice: str, **criteria_to_scores: float):
-        """Given a choice, assign scores (dictionary values) to given criteria (dictionary keys).
+    def rate_choice(self, choice: str, **criteria_to_ratings: float):
+        """Given a choice, assign ratings (dictionary values) to given criteria (dictionary keys).
 
         Parameters
         ----------
@@ -426,8 +426,8 @@ class Matrix:
 
         Keyword args
         ------------
-        **criteria_to_scores : float
-            The criterion-score pairs.
+        **criteria_to_ratings : float
+            The criterion-rating pairs.
 
         Raises
         ------
@@ -442,24 +442,24 @@ class Matrix:
         ...     criteria=('taste', 'color'),
         ...     weights=(7, 3)
         ... )
-        >>> m.score_choice('apple', taste=7, color=5)
+        >>> m.rate_choice('apple', taste=7, color=5)
         >>> m
         |        |   taste |   color | Percentage   |
         |:-------|--------:|--------:|:-------------|
         | Weight |       7 |       3 |              |
         | apple  |       7 |       5 | 64.0         |
         """
-        self.score_choices({choice: criteria_to_scores})
+        self.rate_choices({choice: criteria_to_ratings})
 
-    def score_choices(
-        self, choices_and_criteria_to_scores: dict[str, dict[str, float]]
+    def rate_choices(
+        self, choices_and_criteria_to_ratings: dict[str, dict[str, float]]
     ):
-        """Given some choices, assign scores (dictionary values) to given criteria (dictionary keys).
+        """Given some choices, assign ratings (dictionary values) to given criteria (dictionary keys).
 
         Parameters
         ----------
-        choices_and_criteria_to_scores : dict[str, dict[str, float]]
-            The nested dictionary containing the choices and the scores for each criteria.
+        choices_and_criteria_to_ratings : dict[str, dict[str, float]]
+            The nested dictionary containing the choices and the ratings for each criteria.
 
         Raises
         ------
@@ -478,7 +478,7 @@ class Matrix:
         ...     criteria=('taste', 'color'),
         ...     weights=(7, 3)
         ... )
-        >>> m.score_choices({
+        >>> m.rate_choices({
         ...     'apple': {'taste': 7, 'color': 5},
         ...     'orange': {'taste': 9, 'color': 3}
         ... })
@@ -491,11 +491,11 @@ class Matrix:
         """
         self._reject_if_if_method_active()
 
-        new = pd.DataFrame(choices_and_criteria_to_scores).T
+        new = pd.DataFrame(choices_and_criteria_to_ratings).T
 
         for criterion in new.columns:
             if criterion in self.continuous_criteria:
-                raise ValueError('Cannot assign a score to a continuous criterion!')
+                raise ValueError('Cannot assign a rating to a continuous criterion!')
             if criterion not in self.df.columns:
                 raise ValueError('Criterion has not been added yet, weight is unknown!')
 
@@ -906,8 +906,8 @@ class Matrix:
         ...     criteria=('taste', 'color'),
         ...     weights=(7, 3)
         ... )
-        >>> m.score_choice('apple', taste=1, color=2)
-        >>> m.score_choice('orange', taste=3, color=4)
+        >>> m.rate_choice('apple', taste=1, color=2)
+        >>> m.rate_choice('orange', taste=3, color=4)
         >>> m.update_weight('color', 9)
         >>> m
         |        |   taste |   color | Percentage   |
@@ -1002,31 +1002,31 @@ class Matrix:
         """
         self._renamer('index', 'choice', choice, name, **old_to_new_names)
 
-    def update_score(self, choice: str, criterion: str, score: float):
-        """Update the score given to the choice in the criterion
+    def update_rating(self, choice: str, criterion: str, rating: float):
+        """Update the rating given to the choice in the criterion
 
         Parameters
         ----------
         choice : str
-            The name of the choice whose score is to be updated.
+            The name of the choice whose rating is to be updated.
         criterion : str
-            The name of the criterion whose score is to be updated.
-        score : float
-            The new score value.
+            The name of the criterion whose rating is to be updated.
+        rating : float
+            The new rating value.
 
         Examples
         --------
         >>> import matrix
         >>> m = matrix.Matrix(choices=('apple',), criteria=('taste',), weights=(7,))
-        >>> m.score_criterion('taste', apple=4)
-        >>> m.update_score('apple', 'taste', 8)
+        >>> m.rate_criterion('taste', apple=4)
+        >>> m.update_rating('apple', 'taste', 8)
         >>> m
         |        |   taste | Percentage   |
         |:-------|--------:|:-------------|
         | Weight |       7 |              |
         | apple  |       8 | 80.0         |
         """
-        self.df.loc[choice, criterion] = score
+        self.df.loc[choice, criterion] = rating
         self._calculate_percentage()
 
     def update_criterion_value_to_score(self, continuous_criterion: str, value: float, new_score: float):

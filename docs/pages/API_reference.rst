@@ -18,9 +18,9 @@ API reference
     Matrix.add_continuous_criteria
     Matrix.add_criterion
     Matrix.add_continuous_criterion
-    Matrix.score_criterion
-    Matrix.score_choice
-    Matrix.score_choices
+    Matrix.rate_criterion
+    Matrix.rate_choice
+    Matrix.rate_choices
     Matrix.if_
     Matrix.then
     Matrix.criteria_values_to_scores
@@ -31,7 +31,7 @@ API reference
     Matrix.update_weight
     Matrix.rename_criteria
     Matrix.rename_choices
-    Matrix.update_score
+    Matrix.update_rating
     Matrix.update_criterion_value_to_score
     Matrix.remove_criterion_value_to_score
     Matrix.plot_interpolator

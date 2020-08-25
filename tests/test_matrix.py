@@ -66,7 +66,7 @@ def test_all_criteria_simple(crit1, weight1, weight2):
 def test_all_criteria_percentage(choice1):
     choice2 = choice1 + '1'
     m = matrix.Matrix(choices=(choice1, choice2), criteria=('taste', 'color'), weights=(7, 3))
-    m.score_choice(choice1, taste=1, color=2)
+    m.rate_choice(choice1, taste=1, color=2)
     assert m.df.loc[choice1, 'Percentage'] == 13
 
 
@@ -94,18 +94,18 @@ def test_add_criteria(crit1, weight1, weight2):
 
 @given(floats_for_weights, floats_for_weights, non_nan_floats, non_nan_floats,
         non_nan_floats, non_nan_floats)
-def test_add_criteria_with_score(weight1, weight2, score1, score2, score3, score4):
+def test_add_criteria_with_rating(weight1, weight2, rating1, rating2, rating3, rating4):
     m = matrix.Matrix('apple', 'orange')
     m.add_criteria(
         'taste', 'color',
         weights=(weight1, weight2),  # Not used here (yet?)
-        apple=(score1, score2),
-        orange=(score3, score4)
+        apple=(rating1, rating2),
+        orange=(rating3, rating4)
     )
-    assert m.df.loc['apple']['taste'] == score1
-    assert m.df.loc['apple']['color'] == score2
-    assert m.df.loc['orange']['taste'] == score3
-    assert m.df.loc['orange']['color'] == score4
+    assert m.df.loc['apple']['taste'] == rating1
+    assert m.df.loc['apple']['color'] == rating2
+    assert m.df.loc['orange']['taste'] == rating3
+    assert m.df.loc['orange']['color'] == rating4
 
 
 @given(text(), floats_for_weights, floats_for_weights)
@@ -122,58 +122,58 @@ def test_add_criterion(crit1, weight1, weight2):
 
 
 @given(text(), floats_for_weights, non_nan_floats, non_nan_floats)
-def test_add_criteria_and_score_shortcut(crit, weight, score1, score2):
+def test_add_criteria_and_rating_shortcut(crit, weight, rating1, rating2):
     m = matrix.Matrix('apple', 'orange')
-    m.add_criterion(crit, weight=weight, apple=score1, orange=score2)
+    m.add_criterion(crit, weight=weight, apple=rating1, orange=rating2)
     assert crit in m.df.columns
     assert m.df.loc['Weight', crit] == weight
-    assert m.df.loc['apple', crit] == score1
-    assert m.df.loc['orange', crit] == score2
+    assert m.df.loc['apple', crit] == rating1
+    assert m.df.loc['orange', crit] == rating2
 
 
 @given(non_nan_floats, non_nan_floats, floats_for_weights, floats_for_weights)
-def test_score_choice(score1, score2, weight1, weight2):
+def test_rate_choice(rating1, rating2, weight1, weight2):
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(weight1, weight2))
-    m.score_choice('apple', taste=score1, color=score2)
-    assert m.df.loc['apple', 'taste'] == score1
-    assert m.df.loc['apple', 'color'] == score2
+    m.rate_choice('apple', taste=rating1, color=rating2)
+    assert m.df.loc['apple', 'taste'] == rating1
+    assert m.df.loc['apple', 'color'] == rating2
     assert m.df.loc['apple', 'Percentage'] == pytest.approx(
-        (score1 * weight1 + score2 * weight2) / ((weight1 + weight2) * 10) * 100
+        (rating1 * weight1 + rating2 * weight2) / ((weight1 + weight2) * 10) * 100
     ) or np.nan  # For near-infinite values
-    # Orange is 0 as it hasn't been scored yet
+    # Orange is 0 as it hasn't been rated yet
 
 
 @given(non_nan_floats, non_nan_floats, floats_for_weights)
-def test_score_criterion(score1, score2, weight):
+def test_rate_criterion(rating1, rating2, weight):
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste',), weights=(weight))
-    m.score_criterion('taste', apple=score1, orange=score2)
-    assert m.df.loc['apple', 'taste'] == score1
-    assert m.df.loc['orange', 'taste'] == score2
+    m.rate_criterion('taste', apple=rating1, orange=rating2)
+    assert m.df.loc['apple', 'taste'] == rating1
+    assert m.df.loc['orange', 'taste'] == rating2
     assert m.df.loc['apple', 'Percentage'] == pytest.approx(
-        (weight * score1) / (weight * 10) * 100
+        (weight * rating1) / (weight * 10) * 100
     ) or np.nan
     assert m.df.loc['orange', 'Percentage'] == pytest.approx(
-        (weight * score2) / (weight * 10) * 100
+        (weight * rating2) / (weight * 10) * 100
     ) or np.nan
 
 
-def test_score_criterion_continuous_criterion_raises():
+def test_rate_criterion_continuous_criterion_raises():
     m = matrix.Matrix('apple')
     m.add_continuous_criterion('test', weight=3)
-    with pytest.raises(ValueError, match='Cannot assign a score to a continuous criterion!'):
-        m.score_criterion('test', apple=7)
+    with pytest.raises(ValueError, match='Cannot assign a rating to a continuous criterion!'):
+        m.rate_criterion('test', apple=7)
 
 
-def test_score_criterion_criterion_not_added_raises():
+def test_rate_criterion_criterion_not_added_raises():
     m = matrix.Matrix('apple', 'orange')
     with pytest.raises(ValueError, match='Criterion has not been added yet, weight is unknown!'):
-        m.score_criterion('unknown', apple=1, orange=2)
+        m.rate_criterion('unknown', apple=1, orange=2)
 
 
-def test_score_choice_before_adding_criterion_raises():
+def test_rate_choice_before_adding_criterion_raises():
     m = matrix.Matrix()
     with pytest.raises(ValueError, match='Criterion has not been added yet, weight is unknown!'):
-        m.score_choice('unknown', taste=8)
+        m.rate_choice('unknown', taste=8)
 
 
 @given(text())
@@ -343,8 +343,8 @@ def test_update_weight_no_percentage():
 
 def test_update_weight():
     m = matrix.Matrix(choices=('apple', 'orange'), criteria=('taste', 'color'), weights=(7, 3))
-    m.score_choice('apple', taste=1, color=2)
-    m.score_choice('orange', taste=3, color=4)
+    m.rate_choice('apple', taste=1, color=2)
+    m.rate_choice('orange', taste=3, color=4)
     old_percentages = m.df.loc[:, 'Percentage']
 
     m.update_weight('color', 9)
@@ -413,18 +413,18 @@ def test_rename_criteria_raise():
 
 
 @given(non_nan_floats, non_nan_floats, floats_for_weights)
-def test_update_score(score1, new_score, weight):
+def test_update_rating(rating1, new_rating, weight):
     m = matrix.Matrix(choices=('apple',), criteria=('taste',), weights=(weight))
-    m.score_criterion('taste', apple=score1)
+    m.rate_criterion('taste', apple=rating1)
     old_percentage = m.df.loc['apple', 'Percentage']
 
-    m.update_score('apple', 'taste', new_score)
-    assert m.df.loc['apple', 'taste'] == new_score
+    m.update_rating('apple', 'taste', new_rating)
+    assert m.df.loc['apple', 'taste'] == new_rating
     # Ignore errors that uses absurd numbers
     if (
-        score1 != new_score
-        and 0 <= score1 <= 100 and
-        0 <= new_score <= 100 and
+        rating1 != new_rating
+        and 0 <= rating1 <= 100 and
+        0 <= new_rating <= 100 and
         0 <= weight <= 100
     ):
         assert m.df.loc['apple', 'Percentage'] != old_percentage

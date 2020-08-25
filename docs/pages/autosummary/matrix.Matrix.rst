@@ -25,15 +25,15 @@ matrix.Matrix
       ~Matrix.criterion_value_to_score
       ~Matrix.if_
       ~Matrix.plot_interpolator
+      ~Matrix.rate_choice
+      ~Matrix.rate_choices
+      ~Matrix.rate_criterion
       ~Matrix.remove_criterion_value_to_score
       ~Matrix.rename_choices
       ~Matrix.rename_criteria
-      ~Matrix.score_choice
-      ~Matrix.score_choices
-      ~Matrix.score_criterion
       ~Matrix.then
       ~Matrix.update_criterion_value_to_score
-      ~Matrix.update_score
+      ~Matrix.update_rating
       ~Matrix.update_weight
       ~Matrix.values_to_score_from_record
    

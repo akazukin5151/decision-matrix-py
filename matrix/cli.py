@@ -12,7 +12,7 @@ def maybe_exit_insufficient(interact, *args):
     if not all(args) and not interact:
         click.get_current_context().fail(
             'Insufficient information in non-interactive mode!\n'
-            'At the minimium, choices, criteria, weights, and scores must be supplied.\n'
+            'At the minimium, choices, criteria, weights, and ratings must be supplied.\n'
             'If continuous criteria is given, their weights, all value-score '
             'pairs, and all data need to be given.'
         )
@@ -25,18 +25,18 @@ def maybe_exit_insufficient(interact, *args):
 @click.option('--interact/--no-interact', '-i/-I', default=True)
 @click.option('-w', '--weights', 'weights_tup', multiple=True)
 @click.option('-W', '--continuous-weights', 'c_weights_tup', multiple=True)
-@click.option('-s', '--scores', 'scores_tup', multiple=True)
+@click.option('-r', '--ratings', 'ratings_tup', multiple=True)
 @click.option('-V', '--all-values', 'all_c_values', multiple=True)
 @click.option('-S', '--all-scores', 'all_c_scores', multiple=True)
 @click.option('-d', '--data', 'data_tup', multiple=True)
 def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
-         c_weights_tup, scores_tup, all_c_values, all_c_scores, data_tup: 'tuple[str]',
+         c_weights_tup, ratings_tup, all_c_values, all_c_scores, data_tup: 'tuple[str]',
          interact: bool):
-    maybe_exit_insufficient(interact, choices_tup, criteria_tup, weights_tup, scores_tup)
+    maybe_exit_insufficient(interact, choices_tup, criteria_tup, weights_tup, ratings_tup)
     if continuous_criteria_tup:
         maybe_exit_insufficient(interact, c_weights_tup, all_c_values, all_c_scores, data_tup)
 
-    # maybe_ask functions for choices, criteria, & scores doesn't need interact,
+    # maybe_ask functions for choices, criteria, & ratings doesn't need interact,
     # because if it's not passed in non-interactive mode, maybe_exit_insufficient
     # will throw an error
     choices = maybe_ask_choices(choices_tup)
@@ -44,12 +44,12 @@ def main(choices_tup, criteria_tup, continuous_criteria_tup, weights_tup,
     continuous_criteria = maybe_ask_continuous_criteria(continuous_criteria_tup, interact)
     weights = maybe_ask_weights(weights_tup, criteria)
     cc_weights = maybe_ask_weights(c_weights_tup, continuous_criteria)
-    all_scores = maybe_ask_scores(scores_tup, choices, criteria)
+    all_ratings = maybe_ask_ratings(ratings_tup, choices, criteria)
     value_scores = maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continuous_criteria)
     data = maybe_ask_data(data_tup, continuous_criteria, choices)
 
     m = Matrix(*choices, criteria=criteria, weights=weights)
-    m.score_choices(all_scores)
+    m.rate_choices(all_ratings)
     m.add_continuous_criteria(*continuous_criteria, weights=cc_weights)
     m.criteria_values_to_scores(continuous_criteria, value_scores[0], value_scores[1])
     m.batch_add_data(data)
@@ -119,37 +119,37 @@ def maybe_ask_weights(weights_tup, criteria):
     return flat_split(weights_tup, float)
 
 
-def maybe_ask_scores(scores_tup, choices, criteria):
-    all_scores: 'dict[str, dict[str, float]]' = {}
+def maybe_ask_ratings(ratings_tup, choices, criteria):
+    all_ratings: 'dict[str, dict[str, float]]' = {}
 
-    if not scores_tup:
-        # Dict key = choice, dict value = scores for every criterion
+    if not ratings_tup:
+        # Dict key = choice, dict value = ratings for every criterion
         for choice in choices:
             # Dict key = criterion, dict value = score
-            scores_for_this_choice: 'dict[str, float]' = {}
+            ratings_for_this_choice: 'dict[str, float]' = {}
             for criterion in criteria:
                 ans = click.prompt(
                     f'Enter a score for {choice} on {criterion}\n',
                     type=float
                 )
-                scores_for_this_choice.update({criterion: ans})
+                ratings_for_this_choice.update({criterion: ans})
 
-            all_scores.update({choice: scores_for_this_choice})
-        return all_scores
+            all_ratings.update({choice: ratings_for_this_choice})
+        return all_ratings
 
-    row_major_values = flat_split(scores_tup, float)
+    row_major_values = flat_split(ratings_tup, float)
     rows = range(len(choices))
     cols = range(len(criteria))
     for value, (row, col) in zip(row_major_values, product(rows, cols)):
         current_choice = choices[row]
         current_criterion = criteria[col]
 
-        if current_choice in all_scores.keys():
-            all_scores[current_choice][current_criterion] = value
+        if current_choice in all_ratings.keys():
+            all_ratings[current_choice][current_criterion] = value
         else:
-            all_scores[current_choice] = {current_criterion: value}
+            all_ratings[current_choice] = {current_criterion: value}
 
-    return all_scores
+    return all_ratings
 
 
 def maybe_ask_criterion_value_to_scores(all_c_values, all_c_scores, continuous_criteria):

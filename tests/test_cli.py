@@ -9,7 +9,7 @@ def test_short_no_prompt_in_non_interactive_mode():
         '-c a,b '
         '-C c,d '
         '-w 1,2 '
-        '-s 1,2,3,4 '
+        '-r 1,2,3,4 '
         '-I'
     )
     result = runner.invoke(main, args)
@@ -30,7 +30,7 @@ def test_ugly(interactive):
         '-c a,b '
         '-C c,d '
         '-w 1,2 '
-        '-s 1,2,3,4 '
+        '-r 1,2,3,4 '
         '--continuous-criteria e,f '
         '-W 5,6 '
         '-V 0,10,20 '
@@ -65,7 +65,7 @@ def test_slightly_better():
         '-c a,b '
         '-C c,d '
         '-w 1,2 '
-        '-s 1,2,3,4 '
+        '-r 1,2,3,4 '
         '--continuous-criteria e '
         '-W 5 '
         '-V 0,10,20 '
@@ -97,7 +97,7 @@ def test_longer_options():
         '--choices a,b '
         '--criteria c,d '
         '--weights 1,2 '
-        '--scores 1,2,3,4 '
+        '--ratings 1,2,3,4 '
         '--continuous-criteria e '
         '--continuous-weights 5 '
         '--all-values 0,10,20 '
@@ -129,7 +129,7 @@ def test_continuous_input_no():
         '--choices a,b '
         '--criteria c,d '
         '--weights 1,2 '
-        '--scores 1,2,3,4 '
+        '--ratings 1,2,3,4 '
     )
     result = runner.invoke(main, args, input='false\n')
     assert result.output == (
@@ -150,7 +150,7 @@ def test_input_continuous_weight_and_data():
         '--choices a,b '
         '--criteria c,d '
         '--weights 1,2 '
-        '--scores 1,2,3,4 '
+        '--ratings 1,2,3,4 '
     )
     ans = (
         # Continous criteria
@@ -349,7 +349,7 @@ def test_insufficient_info_no_interact_fails(num):
         'Usage: main [OPTIONS]\n'
         'Try "main --help" for help.\n\n'
         'Error: Insufficient information in non-interactive mode!\n'
-        'At the minimium, choices, criteria, weights, and scores must be supplied.\n'
+        'At the minimium, choices, criteria, weights, and ratings must be supplied.\n'
         'If continuous criteria is given, their weights, all value-score '
         'pairs, and all data need to be given.\n'
     )
@@ -357,15 +357,15 @@ def test_insufficient_info_no_interact_fails(num):
 
 @pytest.mark.parametrize('weights', (True, False))
 @pytest.mark.parametrize('values', (True, False))
-@pytest.mark.parametrize('scores', (True, False))
+@pytest.mark.parametrize('ratings', (True, False))
 @pytest.mark.parametrize('data', (True, False))
-def test_insufficient_args_continuous_quits(weights, values, scores, data):
+def test_insufficient_args_continuous_quits(weights, values, ratings, data):
     runner = CliRunner()
     args = [
         '-c a,b ',
         '-C c,d ',
         '-w 1,2 ',
-        '-s 1,2,3,4 ',
+        '-r 1,2,3,4 ',
         '--continuous-criteria e,f ',
     ]
 
@@ -375,11 +375,11 @@ def test_insufficient_args_continuous_quits(weights, values, scores, data):
     if values:
         args += ['-V 0,10,20 ', '-V 0,5,10 ']
 
-    if scores:
+    if ratings:
         args += ['-S 10,5,0 ','-S 0,3,10 ']
 
     # At least one of the four additional arguments must be false
-    if data and (not weights or not values or not scores):
+    if data and (not weights or not values or not ratings):
         args += ['-d a,e,1 ', '-d a,f,2 ', '-d b,e,3 ', '-d b,f,4 ']
 
     result = runner.invoke(main, '-I ' + ''.join(args))
@@ -388,7 +388,7 @@ def test_insufficient_args_continuous_quits(weights, values, scores, data):
         'Usage: main [OPTIONS]\n'
         'Try "main --help" for help.\n\n'
         'Error: Insufficient information in non-interactive mode!\n'
-        'At the minimium, choices, criteria, weights, and scores must be supplied.\n'
+        'At the minimium, choices, criteria, weights, and ratings must be supplied.\n'
         'If continuous criteria is given, their weights, all value-score '
         'pairs, and all data need to be given.\n'
     )
