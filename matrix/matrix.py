@@ -4,7 +4,6 @@ Todo
 ------
 - API
     - In methods that adds criteria, criteria names and weights should be a dictionary
-    - For rate_choices, the choices doesn't need to be specified before.
 - Names
     - Better terminology overall; improve parameter names
     - Better name for adding criteria values and their scores for continuous criteria.
@@ -1064,7 +1063,6 @@ class Matrix:
 
             >>> import matrix
             >>> m = matrix.Matrix(
-            ...     choices=('apple', 'orange'),  # TODO: this shouldn't be needed
             ...     criteria=('taste', 'color'),
             ...     weights=(7, 3)
             ... )
