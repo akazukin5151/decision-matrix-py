@@ -776,7 +776,7 @@ class Matrix:
         Examples
         --------
         >>> import matrix
-        >>> m = matrix.Matrix('apple', 'orange')
+        >>> m = matrix.Matrix()  # No need to add choices
         >>> m.add_continuous_criterion('size', weight=4)
         >>> m.add_continuous_criterion('price', weight=8)
         >>> m.if_(price=0).then(score=10)
@@ -802,6 +802,9 @@ class Matrix:
         --------
         batch_add_data : The method that is wrapped
         """
+        if choice not in self.df.index:
+            self.df = self.df.reindex(self.df.index.append(pd.Index([choice])))
+
         if values_dict and not criteria_to_values:
             return self.batch_add_data({choice: values_dict})
         elif criteria_to_values:
@@ -825,7 +828,7 @@ class Matrix:
         Examples
         --------
         >>> import matrix
-        >>> m = matrix.Matrix('apple', 'orange')
+        >>> m = matrix.Matrix()  # No need to add choices
         >>> m.add_continuous_criterion('size', weight=4)
         >>> m.add_continuous_criterion('price', weight=8)
         >>> m.if_(price=0).then(score=10)
@@ -858,6 +861,7 @@ class Matrix:
             # Apply column-wise (by criteria)
             new.loc[:, criterion] = f(new.loc[:, criterion])
 
+        self._add_unadded_choices(new)
         self.df.update(new)
         self._calculate_percentage()
 
