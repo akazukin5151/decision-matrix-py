@@ -1048,6 +1048,22 @@ class Matrix:
         ----------
         row : int
             The row number to remove.
+
+        Examples
+        --------
+        >>> import matrix
+        >>> m = matrix.Matrix()
+        >>> m.add_continuous_criterion('price', weight=7)
+        >>> m.if_(price=8).then(score=4)
+        >>> m.if_(price=2).then(score=10)
+        >>> m.value_score_df
+           price  price_score
+        0      8            4
+        1      2           10
+        >>> m.remove_criterion_value_to_score(0)
+        >>> m.value_score_df
+           price  price_score
+        0      2           10
         """
         self.value_score_df= (
             self.value_score_df.drop(row).reset_index(drop=True)
