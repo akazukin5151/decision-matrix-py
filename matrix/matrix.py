@@ -18,6 +18,7 @@ numbers that can cause an overflow in numpy.
 """
 
 from __future__ import annotations
+from typing import *
 
 import pandas as pd
 import numpy as np
@@ -140,7 +141,14 @@ class Matrix:
         return list(self.df.columns.drop('Percentage', errors='ignore'))
 
     @property
-    def criteria(self) -> 'Generator[str]':
+    def criteria(self) -> Generator[str, None, None]:
+        """The names of the criteria that are not added as continuous.
+
+        Returns
+        -------
+        Generator[str, None, None]
+            An iterator that yields all the values lazily.
+        """
         return (
             criterion
             for criterion in self.all_criteria
@@ -315,7 +323,7 @@ class Matrix:
         if np.any(weight == 0):
             raise ValueError('Weights cannot be equal to zero!')
 
-        self.add_criteria(criterion, weights=weight, **choices_to_ratings)
+        self.add_criteria(criterion, weights=(weight,), **choices_to_ratings)
 
     def add_continuous_criterion(self, criterion: str, *, weight: float):
         """Add a continuous criterion into the matrix to evaluate each choice against.

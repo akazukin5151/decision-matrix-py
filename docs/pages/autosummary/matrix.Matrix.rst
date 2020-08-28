@@ -48,5 +48,6 @@ matrix.Matrix
    
       ~Matrix.all_choices
       ~Matrix.all_criteria
+      ~Matrix.criteria
    
    
