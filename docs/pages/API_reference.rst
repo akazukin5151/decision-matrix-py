@@ -10,6 +10,7 @@ API reference
 
     Matrix
     Matrix.__repr__
+    Matrix.criteria
     Matrix.all_choices
     Matrix.all_criteria
     Matrix.add_choices

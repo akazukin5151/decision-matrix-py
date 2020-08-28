@@ -48,8 +48,8 @@ class Matrix:
         ----------
         df : pd.DataFrame
             The pandas DataFrame of the decision matrix.
-        criteria : list[str]
-            The names of the criteria that are not added as continuous.
+        criteria : Generator[str, None, None]
+            Yields the names of the criteria that are not added as continuous.
         continuous_criteria : list[str]
             The names of the criteria that are added as continuous.
         value_score_df : pd.DataFrame
