@@ -47,6 +47,8 @@ class Matrix:
         ----------
         df : pd.DataFrame
             The pandas DataFrame of the decision matrix.
+        criteria : list[str]
+            The names of the criteria that are not added as continuous.
         continuous_criteria : list[str]
             The names of the criteria that are added as continuous.
         value_score_df : pd.DataFrame
@@ -89,7 +91,7 @@ class Matrix:
         then the 'extra' values of the longer tuple will be ignored silently, like ``zip``.
         """
         self.df = pd.DataFrame(index=('Weight',))
-        self.continuous_criteria: 'list[str]' = []
+        self.continuous_criteria: list[str] = []
         self.value_score_df = pd.DataFrame()
 
         # Key  : str      ==> criterion name
@@ -136,6 +138,14 @@ class Matrix:
         """
         self._reject_if_if_method_active()
         return list(self.df.columns.drop('Percentage', errors='ignore'))
+
+    @property
+    def criteria(self) -> 'Generator[str]':
+        return (
+            criterion
+            for criterion in self.all_criteria
+            if criterion not in self.continuous_criteria
+        )
 
     def add_choices(self, *choices: str):
         """Add items to choose from into the matrix.
