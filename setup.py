@@ -28,6 +28,7 @@ setup(
     packages=['matrix'],
     install_requires=[
         'pandas~=1.1',
+        'tabulate~=0.8',  # Required for pretty printing by pandas
         'numpy~=1.19',
         'matplotlib~=3.3',
         'scipy~=1.5',
