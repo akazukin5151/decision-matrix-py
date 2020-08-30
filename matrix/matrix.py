@@ -1,4 +1,4 @@
-"""Module docstring
+"""The main module where everything is.
 
 Todo
 ------

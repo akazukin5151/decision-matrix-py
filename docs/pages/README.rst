@@ -1,6 +1,24 @@
 Readme
 ======
 
+Examples of criteria you might be considering:
+* For a new laptop:
+    * Price
+    * Speed \*
+    * Storage
+    * Battery
+    * Screen
+* For accommodation:
+    * Rent
+    * Location \*
+    * Transportation
+    * Food
+
+Note that some criteria are not specific enough and should be split up into multiple criteria. For example, what does 'speed' mean for a laptop? How can it be quantitatively (numerically) measured? While 'speed' is a qualitative ('fast' vs 'slow') measure, splitting it into more quantitative measures like 'CPU', 'RAM', 'GPU' makes analysis easier.
+
+The location of an accommodation might seem like one criteria, but there might in fact be competing facts behind. For example, one location might be close to downtown with lots of dining and shopping opportunities, but not close to work or school. One location might be close to core transportation links but is in a pretty rural area. By splitting up the 'location' criteria, you make analysis finer and more precise.
+
+
 Terminology
 -----------
 
