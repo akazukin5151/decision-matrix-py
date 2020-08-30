@@ -1,7 +1,8 @@
-Readme
-======
+Notes
+=====
 
 Examples of criteria you might be considering:
+
 * For a new laptop:
     * Price
     * Speed \*
@@ -65,11 +66,3 @@ Terminology
 .. [#f4] Jin Han Park, Il Young Park, Young Chel Kwun, Xuegong Tan (2011). Extension of the TOPSIS method for decision making problems under interval-valued intuitionistic fuzzy environment. Applied Mathematical Modelling, Volume 35, Issue 5, Pages 2544-2556. https://doi.org/10.1016/j.apm.2010.11.025.
 
 .. [#f5] Kavita Devi (2011). Extension of VIKOR method in intuitionistic fuzzy environment for robot selection. Expert Systems with Applications, Volume 38, Issue 11, Pages 14163-14168. https://doi.org/10.1016/j.eswa.2011.04.227.
-
-
-
-Goals
------
-
-* Fluent design
-
