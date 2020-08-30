@@ -122,7 +122,7 @@ print(m)
 
 ### CLI usage
 
-This package also includes a cli interface.
+This package also includes a cli interface. If you intend to use it, install Click and Rich as well.
 
 ```
 ❯ python matrix/cli.py --choices a,b --criteria c,d --weights 1,2 --ratings 1,2,3,4 -I
