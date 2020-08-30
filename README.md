@@ -1,3 +1,5 @@
+[![docs](https://readthedocs.org/projects/decision-matrix-py/badge/?version=latest)](https://decision-matrix-py.readthedocs.io/en/latest/?badge=latest)
+
 # Decision matrix
 
 > Helps making decisions between multiple choices and against multiple weighted criteria (MCDM)
