@@ -42,6 +42,7 @@ For example, in choosing between Phone A and Phone B, the criteria might be pric
 * Programmatic way to create decision matrices
 * Code is a portable and readable text-based format, unlike Excel.
 * Use the pythonic API interface or the fluent API interface, at your choice.
+* CLI interface for quick usage
 
 ## Example
 
@@ -119,16 +120,33 @@ print(m)
     | London    |      5.75461 | 57.546111538461545 |
 ```
 
+### CLI usage
+
+This package also includes a cli interface.
+
+```
+❯ python matrix/cli.py --choices a,b --criteria c,d --weights 1,2 --ratings 1,2,3,4 -I
+┏━━━━━━━━━┳━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ Choices ┃ c   ┃ d   ┃ Percentage         ┃
+┡━━━━━━━━━╇━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ Weight  │ 1.0 │ 2.0 │                    │
+│ a       │ 1.0 │ 2.0 │ 16.666666666666664 │
+│ b       │ 3.0 │ 4.0 │ 36.666666666666664 │
+└─────────┴─────┴─────┴────────────────────┘
+```
+
 
 ## Installation
 
 **Requirements**
 
+* Python 3
 * Pandas
 * Numpy
 * Scipy
 * Matplotlib
-* Python 3
+* Click (optional, cli only)
+* Rich (optional, cli only)
 
 **From source**
 * git clone
