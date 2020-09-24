@@ -56,6 +56,9 @@ class Matrix:
             The pandas DataFrame storing the continuous criterion values to scores mapping.
             The columns are each continuous criteria and their score.
             The rows represent one value-score pair.
+        data_df : pd.DataFrame
+            The pandas DataFrame storing the raw data that is used to calculate
+            the score for continuous criteria.
 
         Raises
         ------
@@ -94,6 +97,7 @@ class Matrix:
         self.df = pd.DataFrame(index=('Weight',))
         self.continuous_criteria: list[str] = []
         self.value_score_df = pd.DataFrame()
+        self.data_df = pd.DataFrame()
 
         # Key  : str      ==> criterion name
         # Value: interp1d ==> interpolator function(v: float) -> float
@@ -814,6 +818,10 @@ class Matrix:
         1   10.0          0.0   NaN         NaN
         2    NaN          NaN   0.0         0.0
         3    NaN          NaN  10.0        10.0
+        >>> m.data_df
+                price  size
+        apple       2     3
+        orange      7     5
 
         See also
         --------
@@ -862,12 +870,18 @@ class Matrix:
         | Weight |      4 |       8 |                    |
         | apple  |      5 |       2 | 30.0               |
         | orange |      3 |       5 | 43.333333333333336 |
+        >>> m.data_df
+                price  size
+        apple       8     5
+        orange      5     3
 
         Note
         ------
         This method has time complexity O(n) in respect to the number of continuous criteria.
         """
         new = pd.DataFrame(choices_and_values).T
+        self.data_df = self.data_df.append(new)
+
         for criterion in self.continuous_criteria:
             # Build interpolators
             value = self.value_score_df[criterion].dropna()
