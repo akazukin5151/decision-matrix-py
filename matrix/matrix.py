@@ -881,6 +881,8 @@ class Matrix:
         """
         new = pd.DataFrame(choices_and_values).T
         self.data_df = self.data_df.append(new)
+        # Drop duplicated indices
+        self.data_df = self.data_df[~self.data_df.index.duplicated(keep='last')]
 
         for criterion in self.continuous_criteria:
             # Build interpolators
